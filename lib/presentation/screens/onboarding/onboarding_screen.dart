@@ -60,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           children: [
             Expanded(
@@ -119,24 +119,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
-                onPressed: () {
-                  if (isLastPage) {
-                    _goToLogin();
-                    return;
-                  }
-                  _pageController.nextPage(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                child: Text(
-                  isLastPage
-                      ? AppLocalization.t('get_started')
-                      : AppLocalization.t('next'),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: FilledButton(
+                  onPressed: () {
+                    if (isLastPage) {
+                      _goToLogin();
+                      return;
+                    }
+                    _pageController.nextPage(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                  child: Text(
+                    isLastPage
+                        ? AppLocalization.t('get_started')
+                        : AppLocalization.t('next'),
+                  ),
                 ),
               ),
             ),
+            SizedBox(height: 20,)
           ],
         ),
       ),
