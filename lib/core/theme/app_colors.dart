@@ -6,7 +6,7 @@ class AppColors {
   static const Color secondary = Color(0xFF7BC1B7);
 
   // Backgrounds
-  static const Color background = Color(0xFFD2EBE7);
+  static const Color background = Color(0xFFF8FAFB);
   static const Color surface = Color(0xFFFFFFFF);
 
   // Text

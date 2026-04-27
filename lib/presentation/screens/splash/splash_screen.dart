@@ -1,6 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:nabd_client_app/core/theme/app_colors.dart';
+import 'package:nabd_client_app/core/theme/app_text_styles.dart';
+import 'package:nabd_client_app/core/widgets/app_text.dart';
 
 import '../../../core/localization/app_localization.dart';
 import '../onboarding/onboarding_screen.dart';
@@ -16,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 500000), () {
       if (!mounted) {
         return;
       }
@@ -31,16 +35,21 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const FlutterLogo(size: 96),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalization.t('app_name'),
-              style: Theme.of(context).textTheme.headlineSmall,
+             SvgPicture.asset(
+              'assets/logo/nabd_logo.svg',
+              width: 100,
+              height: 100,
             ),
+            const SizedBox(height: 16),
+            AppText(
+              jsonKey: "app_name",
+              textStyle: AppTextStyles.largeBold,
+            )
           ],
         ),
       ),
