@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 500000), () {
+    Timer(const Duration(seconds: 4), () {
       if (!mounted) {
         return;
       }
@@ -36,22 +36,28 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-             SvgPicture.asset(
-              'assets/logo/nabd_logo.svg',
-              width: 100,
-              height: 100,
+      body: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(50.0),
+              child: SvgPicture.asset(
+                'assets/logo/nabd_logo.svg',
+              ),
             ),
-            const SizedBox(height: 16),
-            AppText(
-              jsonKey: "app_name",
-              textStyle: AppTextStyles.largeBold,
-            )
-          ],
-        ),
+          ),
+          Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: AppText(
+                  jsonKey: "dev_by_nabd",
+                  textStyle: AppTextStyles.smallBold
+              )
+            ),
+          ),
+        ],
       ),
     );
   }

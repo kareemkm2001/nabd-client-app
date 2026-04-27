@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nabd_client_app/core/theme/app_colors.dart';
 
 class AppTextStyles {
 
@@ -41,5 +42,11 @@ class AppTextStyles {
   static final TextStyle smallBold = GoogleFonts.cairo(
     fontSize: 12,
     fontWeight: FontWeight.bold,
+  );
+
+  static final TextStyle buttonTitle = GoogleFonts.cairo(
+    fontSize: 45,
+    fontWeight: FontWeight.normal,
+    color: AppColors.surface
   );
 }

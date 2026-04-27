@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nabd_client_app/core/widgets/app_button.dart';
 
 import '../../cubits/language/language_cubit.dart';
 import '../../cubits/language/language_state.dart';
@@ -48,9 +49,15 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-          body: Center(
-            child: Text(AppLocalization.t('welcome')),
-          ),
+          body: Column(
+            children: [
+              AppButton(
+                titleKey: "send_otp",
+                onTap: (){},
+                margin: 50,
+              )
+            ],
+          )
         );
       },
     );
