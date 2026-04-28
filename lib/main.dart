@@ -13,9 +13,7 @@ void main() async {
     RestartWidget(
       child: MultiBlocProvider(
         providers: [
-          BlocProvider<LanguageCubit>(
-            create: (_) => LanguageCubit()..init(),
-          ),
+          BlocProvider<LanguageCubit>(create: (_) => LanguageCubit()..init(),),
         ],
         child: const MyApp(),
       ),
@@ -42,6 +40,9 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+          theme: ThemeData(
+            fontFamily: 'Cairo'
+          ),
           home: const SplashScreen(),
         );
       },

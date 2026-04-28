@@ -81,24 +81,27 @@ class _OtpScreenState extends State<OtpScreen> {
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(
-                4,
-                (index) => SizedBox(
-                  width: 64,
-                  child: TextField(
-                    controller: _controllers[index],
-                    focusNode: _focusNodes[index],
-                    autofocus: index == 0,
-                    maxLength: 1,
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      counterText: '',
-                      border: OutlineInputBorder(),
+            Directionality(
+            textDirection: TextDirection.ltr,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(
+                  4,
+                  (index) => SizedBox(
+                    width: 64,
+                    child: TextField(
+                      controller: _controllers[index],
+                      focusNode: _focusNodes[index],
+                      autofocus: index == 0,
+                      maxLength: 1,
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        counterText: '',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) => _onOtpChanged(index, value),
                     ),
-                    onChanged: (value) => _onOtpChanged(index, value),
                   ),
                 ),
               ),

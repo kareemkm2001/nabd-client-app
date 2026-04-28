@@ -31,7 +31,7 @@ class AppButton extends StatelessWidget {
           ),
           child: AppText(
               jsonKey: titleKey,
-              textStyle: AppTextStyles.buttonTitle
+              textStyle: AppTextStyles.mediumWhite
           ),
         ),
       ),

@@ -1,12 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
-
-import '../../../core/localization/app_localization.dart';
 import '../onboarding/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -40,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           Center(
             child: Padding(
-              padding: const EdgeInsets.all(50.0),
+              padding: const EdgeInsets.all(70.0),
               child: SvgPicture.asset(
                 'assets/logo/nabd_logo.svg',
               ),
@@ -52,8 +49,8 @@ class _SplashScreenState extends State<SplashScreen> {
             right: 0,
             child: Center(
               child: AppText(
-                  jsonKey: "dev_by_nabd",
-                  textStyle: AppTextStyles.smallBold
+                  jsonKey: "Developed and operated by NWIT",
+                  textStyle: AppTextStyles.mediumBlack
               )
             ),
           ),
