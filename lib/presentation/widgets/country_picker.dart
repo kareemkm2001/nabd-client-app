@@ -36,14 +36,23 @@ class CountryPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<Country>(
       value: selectedCountry,
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
+      borderRadius: BorderRadius.circular(16),
+      decoration: InputDecoration(
+        labelText: 'Country',
+        filled: true,
+        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
       items: countries
           .map(
             (country) => DropdownMenuItem<Country>(
               value: country,
-              child: Text('${country.flag} ${country.name} (${country.dialCode})'),
+              child: Text(
+                '${country.flag} ${country.name} (${country.dialCode})',
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           )
           .toList(),

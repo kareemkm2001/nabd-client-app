@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-
-import '../../../core/localization/app_localization.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nabd_client_app/core/theme/app_colors.dart';
+import 'package:nabd_client_app/core/theme/app_text_styles.dart';
+import 'package:nabd_client_app/core/widgets/app_button.dart';
+import 'package:nabd_client_app/core/widgets/app_text.dart';
 import '../auth/login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -16,17 +19,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<_OnboardingData> _pages = const [
     _OnboardingData(
-      icon: Icons.newspaper_outlined,
+      img: "assets/icons/leaf.svg",
       titleKey: 'onboarding_title_1',
       descriptionKey: 'onboarding_desc_1',
     ),
     _OnboardingData(
-      icon: Icons.notifications_active_outlined,
+      img: "assets/icons/doctors.svg",
       titleKey: 'onboarding_title_2',
       descriptionKey: 'onboarding_desc_2',
     ),
     _OnboardingData(
-      icon: Icons.language_outlined,
+      img: "assets/icons/calendar.svg",
       titleKey: 'onboarding_title_3',
       descriptionKey: 'onboarding_desc_3',
     ),
@@ -53,9 +56,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          TextButton(
-            onPressed: _goToLogin,
-            child: Text(AppLocalization.t('skip')),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextButton(
+              onPressed: _goToLogin,
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary
+              ),
+              child: AppText(
+                  jsonKey: "skip",
+                  textStyle: AppTextStyles.mediumGrey,
+              ),
+            ),
           ),
         ],
       ),
@@ -78,20 +90,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CircleAvatar(
-                        radius: 56,
-                        child: Icon(page.icon, size: 56),
+                        radius: 72,
+                        backgroundColor: AppColors.secondary,
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: SvgPicture.asset(
+                              page.img,
+                            color: AppColors.surface,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 42),
+                      AppText(
+                          jsonKey: page.titleKey,
+                          textStyle: AppTextStyles.displayMediumBlack,
+                        margin: 16,
                       ),
                       const SizedBox(height: 24),
-                      Text(
-                        AppLocalization.t(page.titleKey),
-                        style: Theme.of(context).textTheme.headlineSmall,
+                      AppText(
+                          jsonKey: page.descriptionKey,
+                          textStyle: AppTextStyles.mediumGrey,
                         textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        AppLocalization.t(page.descriptionKey),
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        textAlign: TextAlign.center,
+                        margin: 24,
                       ),
                     ],
                   );
@@ -105,13 +125,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 (index) => AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentPage == index ? 22 : 8,
+                  width: _currentPage == index ? 28 : 8,
                   height: 8,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999),
                     color: _currentPage == index
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outlineVariant,
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -119,10 +139,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: FilledButton(
-                  onPressed: () {
+              child: AppButton(
+                  titleKey: isLastPage ?"get_started" : "next",
+                  margin: 38,
+                  onTap: (){
                     if (isLastPage) {
                       _goToLogin();
                       return;
@@ -131,13 +151,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.easeInOut,
                     );
-                  },
-                  child: Text(
-                    isLastPage
-                        ? AppLocalization.t('get_started')
-                        : AppLocalization.t('next'),
-                  ),
-                ),
+                  }
               ),
             ),
             SizedBox(height: 20,)
@@ -149,12 +163,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class _OnboardingData {
-  final IconData icon;
+  final String img;
   final String titleKey;
   final String descriptionKey;
 
   const _OnboardingData({
-    required this.icon,
+    required this.img,
     required this.titleKey,
     required this.descriptionKey,
   });
