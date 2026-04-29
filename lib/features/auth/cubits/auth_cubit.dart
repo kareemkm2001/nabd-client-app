@@ -10,11 +10,6 @@ import '../../../presentation/viewmodels/auth/otp_view_model.dart';
 
 import 'auth_state.dart';
 
-/// Authentication cubit responsible for:
-/// - phone normalization + validation
-/// - login/register orchestration (including OTP step transitions)
-/// - OTP verification
-/// - selected country management
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit({
     AuthMode initialMode = AuthMode.login,
@@ -43,8 +38,6 @@ class AuthCubit extends Cubit<AuthState> {
 
   final AuthService _authService;
 
-  /// We reuse existing validation rules to avoid duplicating business logic.
-  /// (UI is kept totally free of validation / error mapping.)
   late final LoginViewModel _loginValidator;
   late final RegisterViewModel _registerValidator;
   late final OtpViewModel _otpValidator;

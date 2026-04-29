@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nabd_client_app/core/theme/app_colors.dart';
 
 import '../../../core/localization/app_localization.dart';
 import '../../../core/widgets/app_text_field.dart';
@@ -11,7 +12,7 @@ import 'widgets/phone_text_field.dart';
 
 class AuthScreen extends StatefulWidget {
   final AuthMode initialMode;
-  final String? initialPhoneNumber; // Full phone number (ex: +9665xxxxxxx)
+  final String? initialPhoneNumber;
 
   const AuthScreen({
     super.key,
@@ -94,8 +95,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return BlocProvider<AuthCubit>.value(
       value: _cubit,
       child: BlocListener<AuthCubit, AuthState>(
@@ -136,8 +135,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 : null;
 
             return Scaffold(
-              backgroundColor:
-                  cs.surfaceContainerHighest.withValues(alpha: 0.25),
+              backgroundColor: AppColors.background,
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
