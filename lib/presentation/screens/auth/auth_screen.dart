@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/localization/app_localization.dart';
 import '../../../core/widgets/app_text_field.dart';
-import '../../viewmodels/auth/login_view_model.dart';
-import '../../viewmodels/auth/register_view_model.dart';
+import '../../../features/auth/cubits/auth_cubit.dart';
+import '../../../features/auth/cubits/auth_state.dart';
 import '../../widgets/country_picker.dart';
 import 'otp_screen.dart';
 import 'widgets/phone_text_field.dart';
-
-enum AuthMode { login, register }
 
 class AuthScreen extends StatefulWidget {
   final AuthMode initialMode;
@@ -25,113 +24,45 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final _formKey = GlobalKey<FormState>();
-
   final _phoneController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
 
-  late final LoginViewModel _loginViewModel;
-  late final RegisterViewModel _registerViewModel;
-
-  late AuthMode _mode;
-
-  String? _phoneErrorText;
-  bool _phoneTouched = false;
+  late final AuthCubit _cubit;
+  String? _lastNavigatedFullPhone;
 
   @override
   void initState() {
     super.initState();
-    _mode = widget.initialMode;
-
-    _loginViewModel = LoginViewModel();
-    _registerViewModel = RegisterViewModel();
-
-    _loginViewModel.addListener(_viewModelListener);
-    _registerViewModel.addListener(_viewModelListener);
-
-    if (widget.initialPhoneNumber != null) {
-      _applyInitialPhone(widget.initialPhoneNumber!);
-    }
+    _cubit = AuthCubit(
+      initialMode: widget.initialMode,
+      initialFullPhoneNumber: widget.initialPhoneNumber,
+    );
   }
 
-  void _viewModelListener() {
-    if (!mounted) return;
-    setState(() {});
+  PageRouteBuilder<void> _buildRoute(Widget child) {
+    return PageRouteBuilder<void>(
+      pageBuilder: (_, __, ___) => child,
+      transitionsBuilder: (_, animation, __, page) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.1, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: page,
+        ),
+      ),
+    );
   }
 
   @override
   void dispose() {
-    _loginViewModel
-      ..removeListener(_viewModelListener)
-      ..dispose();
-    _registerViewModel
-      ..removeListener(_viewModelListener)
-      ..dispose();
-
+    _cubit.close();
     _phoneController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
     super.dispose();
-  }
-
-  bool get _isSubmitting => _loginViewModel.isSubmitting || _registerViewModel.isSubmitting;
-
-  void _applyInitialPhone(String fullPhone) {
-    // Parse full phone number into (selected dial code, local digits).
-    for (final country in CountryPicker.countries) {
-      if (fullPhone.startsWith(country.dialCode)) {
-        _loginViewModel.selectCountry(country);
-        final localDigits = fullPhone.substring(country.dialCode.length);
-        _phoneController.text = _loginViewModel.normalizeInput(localDigits);
-        return;
-      }
-    }
-
-    _phoneController.text = _loginViewModel.normalizeInput(fullPhone);
-  }
-
-  String? _mapPhoneError(String? errorCode) {
-    switch (errorCode) {
-      case 'empty':
-        return AppLocalization.t('phone_required');
-      case 'saudi_start':
-        return AppLocalization.t('saudi_phone_start');
-      case 'saudi_length':
-        return AppLocalization.t('saudi_phone_length');
-      case 'min_length':
-      case 'invalid':
-        return AppLocalization.t('phone_validation');
-      default:
-        return null;
-    }
-  }
-
-  String? _mapNameError(String? errorCode) {
-    switch (errorCode) {
-      case 'empty':
-        return AppLocalization.t('name_required');
-      case 'too_short':
-        return AppLocalization.t('name_too_short');
-      default:
-        return null;
-    }
-  }
-
-  void _onPhoneChanged(String rawValue) {
-    _phoneTouched = true;
-
-    final normalized = _loginViewModel.normalizeInput(rawValue);
-    if (rawValue != normalized) {
-      _phoneController.value = TextEditingValue(
-        text: normalized,
-        selection: TextSelection.collapsed(offset: normalized.length),
-      );
-    }
-
-    setState(() {
-      _phoneErrorText = _mapPhoneError(_loginViewModel.validatePhone(normalized));
-    });
   }
 
   Future<void> _showCountryPickerSheet() async {
@@ -158,182 +89,167 @@ class _AuthScreenState extends State<AuthScreen> {
     );
 
     if (selected == null || !mounted) return;
-
-    _loginViewModel.selectCountry(selected);
-
-    // Normalize current digits based on the new country rules.
-    final normalized = _loginViewModel.normalizeInput(_phoneController.text);
-    _phoneController.value = TextEditingValue(
-      text: normalized,
-      selection: TextSelection.collapsed(offset: normalized.length),
-    );
-
-    setState(() {
-      _phoneErrorText = _mapPhoneError(_loginViewModel.validatePhone(normalized));
-    });
-  }
-
-  PageRouteBuilder<void> _buildRoute(Widget child) {
-    return PageRouteBuilder<void>(
-      pageBuilder: (_, __, ___) => child,
-      transitionsBuilder: (_, animation, __, page) => FadeTransition(
-        opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0.1, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: page,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _submitLogin() async {
-    final raw = _phoneController.text.trim();
-    final normalized = _loginViewModel.normalizeInput(raw);
-    final phoneError = _mapPhoneError(_loginViewModel.validatePhone(normalized));
-
-    if (phoneError != null) {
-      setState(() {
-        _phoneTouched = true;
-        _phoneErrorText = phoneError;
-      });
-      return;
-    }
-
-    final fullPhone = _loginViewModel.buildFullPhoneNumber(normalized);
-    final sent = await _loginViewModel.sendCode(fullPhone);
-    if (!mounted || !sent) return;
-
-    Navigator.of(context).push(_buildRoute(OtpScreen(phoneNumber: fullPhone)));
-  }
-
-  Future<void> _submitRegister() async {
-    final raw = _phoneController.text.trim();
-    final normalized = _loginViewModel.normalizeInput(raw);
-    final phoneError = _mapPhoneError(_loginViewModel.validatePhone(normalized));
-
-    if (phoneError != null) {
-      setState(() {
-        _phoneTouched = true;
-        _phoneErrorText = phoneError;
-      });
-      return;
-    }
-
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    final fullPhone = _loginViewModel.buildFullPhoneNumber(normalized);
-    final created = await _registerViewModel.createAccount(
-      firstName: _firstNameController.text,
-      lastName: _lastNameController.text,
-      phoneNumber: fullPhone,
-    );
-
-    if (!mounted || !created) return;
-
-    Navigator.of(context).push(_buildRoute(OtpScreen(phoneNumber: fullPhone)));
+    _cubit.selectCountry(selected);
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isSaudi = _loginViewModel.isSaudi;
 
-    final phoneErrorToShow = _phoneTouched ? _phoneErrorText : null;
+    return BlocProvider<AuthCubit>.value(
+      value: _cubit,
+      child: BlocListener<AuthCubit, AuthState>(
+        listener: (context, state) {
+          // Keep controller synced with cubit normalization.
+          if (_phoneController.text != state.phone) {
+            _phoneController.value = TextEditingValue(
+              text: state.phone,
+              selection:
+                  TextSelection.collapsed(offset: state.phone.length),
+            );
+          }
 
-    return Scaffold(
-      backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.25),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 12),
-                  AuthToggle(
-                    mode: _mode,
-                    onModeSelected: (mode) {
-                      if (_isSubmitting) return;
-                      setState(() {
-                        _mode = mode;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 28),
-
-                  Text(
-                    AppLocalization.t('mental_health_auth_title'),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    AppLocalization.t(
-                      _mode == AuthMode.login ? 'login_subtitle' : 'register_subtitle',
-                    ),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  PhoneTextField(
-                    controller: _phoneController,
-                    selectedCountry: _loginViewModel.selectedCountry,
-                    errorText: phoneErrorToShow,
-                    hint: isSaudi ? '5XXXXXXXX' : AppLocalization.t('phone_number_hint'),
-                    onCountryTap: _showCountryPickerSheet,
-                    onChanged: _onPhoneChanged,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 320),
-                    switchInCurve: Curves.easeOut,
-                    switchOutCurve: Curves.easeIn,
-                    transitionBuilder: (child, animation) {
-                      final offsetAnim = Tween<Offset>(
-                        begin: const Offset(0.05, 0),
-                        end: Offset.zero,
-                      ).animate(animation);
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: offsetAnim,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: _mode == AuthMode.login
-                        ? _LoginActions(
-                            key: const ValueKey('loginActions'),
-                            isSubmitting: _loginViewModel.isSubmitting,
-                            onPressed: _submitLogin,
-                          )
-                        : _RegisterActions(
-                            key: const ValueKey('registerActions'),
-                            isSubmitting: _registerViewModel.isSubmitting,
-                            firstNameController: _firstNameController,
-                            lastNameController: _lastNameController,
-                            nameErrorMapper: _mapNameError,
-                            validateName: _registerViewModel.validateName,
-                            onPressed: _submitRegister,
-                          ),
-                  ),
-                ],
+          // Navigate to OTP step when cubit confirms OTP send success.
+          if (state is AuthOtpSentSuccess) {
+            final fullPhone = state.fullPhoneNumber;
+            if (fullPhone == null) return;
+            if (_lastNavigatedFullPhone == fullPhone) return;
+            _lastNavigatedFullPhone = fullPhone;
+            Navigator.of(context).push(
+              _buildRoute(
+                BlocProvider.value(
+                  value: context.read<AuthCubit>(),
+                  child: OtpScreen(phoneNumber: fullPhone),
+                ),
               ),
-            ),
-          ),
+            );
+          }
+        },
+        child: BlocBuilder<AuthCubit, AuthState>(
+          builder: (context, state) {
+            final isLoading = state is AuthLoading;
+            final isSaudi = state.selectedCountry.dialCode == '+966';
+
+            final String? inlineError = switch (state) {
+              AuthError s => (s.errorMessage != null &&
+                      s.errorMessage != s.phoneErrorMessage)
+                  ? s.errorMessage
+                  : null,
+              _ => null,
+            };
+
+            return Scaffold(
+              backgroundColor:
+                  cs.surfaceContainerHighest.withValues(alpha: 0.25),
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 12),
+                        AuthToggle(
+                          mode: state.mode,
+                          onModeSelected: (mode) {
+                            if (isLoading) return;
+                            _cubit.changeAuthMode(mode);
+                          },
+                        ),
+                        const SizedBox(height: 28),
+
+                        Text(
+                          AppLocalization.t('mental_health_auth_title'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          AppLocalization.t(
+                            state.mode == AuthMode.login
+                                ? 'login_subtitle'
+                                : 'register_subtitle',
+                          ),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        PhoneTextField(
+                          controller: _phoneController,
+                          selectedCountry: state.selectedCountry,
+                          errorText: state.phoneErrorMessage,
+                          hint: isSaudi
+                              ? '5XXXXXXXX'
+                              : AppLocalization.t('phone_number_hint'),
+                          onCountryTap: _showCountryPickerSheet,
+                          onChanged: (value) {
+                            if (value == _cubit.state.phone) return;
+                            _cubit.onPhoneChanged(value);
+                          },
+                        ),
+
+                        if (inlineError != null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            inlineError,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ],
+
+                        const SizedBox(height: 20),
+
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 320),
+                          switchInCurve: Curves.easeOut,
+                          switchOutCurve: Curves.easeIn,
+                          transitionBuilder: (child, animation) {
+                            final offsetAnim = Tween<Offset>(
+                              begin: const Offset(0.05, 0),
+                              end: Offset.zero,
+                            ).animate(animation);
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SlideTransition(
+                                position: offsetAnim,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: state.mode == AuthMode.login
+                              ? _LoginActions(
+                                  key: const ValueKey('loginActions'),
+                                  isSubmitting: isLoading,
+                                  onPressed: () {
+                                    _cubit.login(_phoneController.text);
+                                  },
+                                )
+                              : _RegisterActions(
+                                  key: const ValueKey('registerActions'),
+                                  isSubmitting: isLoading,
+                                  firstNameController: _firstNameController,
+                                  lastNameController: _lastNameController,
+                                  onPressed: () {
+                                    _cubit.register(
+                                      firstName: _firstNameController.text,
+                                      lastName: _lastNameController.text,
+                                      phone: _phoneController.text,
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -482,8 +398,6 @@ class _RegisterActions extends StatelessWidget {
   final bool isSubmitting;
   final TextEditingController firstNameController;
   final TextEditingController lastNameController;
-  final String? Function(String?) nameErrorMapper;
-  final String? Function(String) validateName;
 
   const _RegisterActions({
     super.key,
@@ -491,8 +405,6 @@ class _RegisterActions extends StatelessWidget {
     required this.isSubmitting,
     required this.firstNameController,
     required this.lastNameController,
-    required this.nameErrorMapper,
-    required this.validateName,
   });
 
   @override
@@ -505,14 +417,12 @@ class _RegisterActions extends StatelessWidget {
           controller: firstNameController,
           margin: 0,
           keyboardType: TextInputType.name,
-          validator: (value) => nameErrorMapper(validateName(value ?? '')),
         ),
         AppTextField(
           titleKey: 'last_name',
           controller: lastNameController,
           margin: 0,
           keyboardType: TextInputType.name,
-          validator: (value) => nameErrorMapper(validateName(value ?? '')),
         ),
         const SizedBox(height: 8),
         FilledButton(
