@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
+import 'package:nabd_client_app/core/widgets/app_text_field.dart';
 
 import '../../cubits/language/language_cubit.dart';
 import '../../cubits/language/language_state.dart';
@@ -8,7 +9,11 @@ import '../../../core/localization/app_localization.dart';
 import '../settings/settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+   HomeScreen({super.key});
+
+  final phoneController = TextEditingController();
+   final passwordController = TextEditingController();
+   final formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +56,7 @@ class HomeScreen extends StatelessWidget {
           ),
           body: Column(
             children: [
+
               AppButton(
                 titleKey: "send_otp",
                 onTap: (){},

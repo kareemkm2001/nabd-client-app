@@ -113,6 +113,7 @@ class AppTextStyles {
     fontSize: 16,
     fontWeight: FontWeight.normal,
     color: AppColors.textPrimary,
+      fontFamily: 'Cairo'
   );
 
   static TextStyle mediumGrey = TextStyle(
@@ -156,6 +157,7 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.normal,
     color: AppColors.primary,
+      fontFamily: 'Cairo'
   );
 
   static TextStyle smallBlack = TextStyle(

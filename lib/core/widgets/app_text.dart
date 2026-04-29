@@ -3,14 +3,14 @@ import 'package:nabd_client_app/core/localization/app_localization.dart';
 
 class AppText extends StatelessWidget {
   final String jsonKey;
-  final TextStyle textStyle ;
+  final TextStyle? textStyle ;
   final TextAlign textAlign ;
   final double margin ;
 
-  const AppText({
+   const AppText({
     super.key,
     required this.jsonKey,
-    required this.textStyle,
+     this.textStyle,
     this.textAlign = TextAlign.start,
     this.margin = 0
   });

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nabd_client_app/presentation/screens/auth/widgets/phone_text_field.dart';
 
 import '../../../core/localization/app_localization.dart';
 import '../../viewmodels/auth/login_view_model.dart';
@@ -124,64 +125,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 28),
-                TextFormField(
+                PhoneTextField(
                   controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(_viewModel.maxPhoneLength),
-                  ],
-                  decoration: InputDecoration(
-                    labelText: AppLocalization.t('phone_number'),
-                    hintText: isSaudi ? '5XXXXXXXX' : AppLocalization.t('phone_number_hint'),
-                    errorText: _phoneErrorText,
-                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-                    prefixIcon: Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 12),
-                      child: GestureDetector(
-                        onTap: _showCountryPickerSheet,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${_viewModel.selectedCountry.dialCode} ${_viewModel.selectedCountry.flag}',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            const SizedBox(width: 6),
-                            const Icon(Icons.arrow_drop_down, size: 18),
-                            const SizedBox(width: 8),
-                            Container(
-                              height: 24,
-                              width: 1,
-                              color: Theme.of(context).dividerColor,
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                        ),
-                      ),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
+                  selectedCountry: _viewModel.selectedCountry,
+                  errorText: _phoneErrorText,
+                  hint: isSaudi ? '5XXXXXXXX' : AppLocalization.t('phone_number_hint'),
+
+                  onCountryTap: _showCountryPickerSheet,
+
                   onChanged: (value) {
                     final normalized = _viewModel.normalizeInput(value);
+
                     if (value != normalized) {
                       _phoneController.value = TextEditingValue(
                         text: normalized,
-                        selection: TextSelection.collapsed(offset: normalized.length),
+                        selection: TextSelection.collapsed(
+                          offset: normalized.length,
+                        ),
                       );
                     }
+
                     setState(() {
-                      _phoneErrorText = _mapPhoneError(_viewModel.validatePhone(normalized));
+                      _phoneErrorText =
+                          _mapPhoneError(_viewModel.validatePhone(normalized));
                     });
-                  },
-                  validator: (value) {
-                    final errorCode = _viewModel.validatePhone(value ?? '');
-                    return _mapPhoneError(errorCode);
                   },
                 ),
                 const SizedBox(height: 20),
