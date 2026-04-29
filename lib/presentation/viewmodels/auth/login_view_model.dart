@@ -16,6 +16,7 @@ class LoginViewModel extends ChangeNotifier {
   void selectCountry(Country country) {
     selectedCountry = country;
     notifyListeners();
+
   }
 
   bool get isSaudi => selectedCountry.dialCode == '+966';
