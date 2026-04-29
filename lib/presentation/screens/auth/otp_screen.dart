@@ -77,7 +77,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
     Navigator.of(context).pushAndRemoveUntil(
       PageRouteBuilder<void>(
-        pageBuilder: (_, __, ___) => const HomeScreen(),
+        pageBuilder: (_, __, ___) =>  HomeScreen(),
         transitionsBuilder: (_, animation, __, page) => FadeTransition(
           opacity: animation,
           child: SlideTransition(

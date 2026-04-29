@@ -130,13 +130,10 @@ class _AuthScreenState extends State<AuthScreen> {
             final isLoading = state is AuthLoading;
             final isSaudi = state.selectedCountry.dialCode == '+966';
 
-            final String? inlineError = switch (state) {
-              AuthError s => (s.errorMessage != null &&
-                      s.errorMessage != s.phoneErrorMessage)
-                  ? s.errorMessage
-                  : null,
-              _ => null,
-            };
+            final String? inlineError = (state.errorMessage != null &&
+                    state.errorMessage != state.phoneErrorMessage)
+                ? state.errorMessage
+                : null;
 
             return Scaffold(
               backgroundColor:

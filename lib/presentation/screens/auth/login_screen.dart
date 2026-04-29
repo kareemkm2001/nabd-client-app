@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:nabd_client_app/presentation/screens/auth/phone_text_field.dart';
+import 'package:nabd_client_app/presentation/screens/auth/widgets/phone_text_field.dart';
 
 import '../../../core/localization/app_localization.dart';
 import '../../viewmodels/auth/login_view_model.dart';
