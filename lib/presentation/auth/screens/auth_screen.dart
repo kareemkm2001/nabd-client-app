@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 
-import '../../../core/localization/app_localization.dart';
-import '../../../core/widgets/app_text_field.dart';
-import '../../../features/auth/cubits/auth_cubit.dart';
-import '../../../features/auth/cubits/auth_state.dart';
-import '../../widgets/country_picker.dart';
+import '../../../../core/localization/app_localization.dart';
+import '../../../../core/widgets/app_text_field.dart';
+
+import '../../../core/widgets/country_picker.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
 import 'otp_screen.dart';
-import 'widgets/phone_text_field.dart';
+import '../widgets/phone_text_field.dart';
 
 class AuthScreen extends StatefulWidget {
   final AuthMode initialMode;

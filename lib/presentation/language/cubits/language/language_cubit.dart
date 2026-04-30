@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localization.dart';
+import '../../../../core/localization/app_localization.dart';
+import '../../../../core/services/language_service.dart';
 import 'language_state.dart';
-import '../../../core/services/language_service.dart';
 
 class LanguageCubit extends Cubit<LanguageState> {
   LanguageCubit() : super(const LanguageState(locale: Locale('ar')));

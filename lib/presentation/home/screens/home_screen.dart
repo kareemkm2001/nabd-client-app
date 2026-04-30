@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/core/widgets/app_text_field.dart';
 
-import '../../cubits/language/language_cubit.dart';
-import '../../cubits/language/language_state.dart';
-import '../../../core/localization/app_localization.dart';
-import '../settings/settings_screen.dart';
+import '../../../../core/localization/app_localization.dart';
+import '../../language/cubits/language/language_cubit.dart';
+import '../../language/cubits/language/language_state.dart';
+import '../../settings/settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
    HomeScreen({super.key});

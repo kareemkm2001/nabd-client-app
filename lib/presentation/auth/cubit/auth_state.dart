@@ -1,4 +1,4 @@
-import 'package:nabd_client_app/presentation/widgets/country_picker.dart';
+import 'package:nabd_client_app/core/widgets/country_picker.dart';
 
 enum AuthMode { login, register }
 

@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:nabd_client_app/core/localization/app_localization.dart';
 import 'package:nabd_client_app/core/services/auth_service.dart';
-import 'package:nabd_client_app/presentation/widgets/country_picker.dart';
+import 'package:nabd_client_app/core/widgets/country_picker.dart';
 
 import '../../../presentation/viewmodels/auth/login_view_model.dart';
 import '../../../presentation/viewmodels/auth/register_view_model.dart';

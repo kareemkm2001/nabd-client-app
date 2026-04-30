@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/services/auth_service.dart';
-import '../../widgets/country_picker.dart';
+import '../../../core/widgets/country_picker.dart';
 
 class LoginViewModel extends ChangeNotifier {
   LoginViewModel({

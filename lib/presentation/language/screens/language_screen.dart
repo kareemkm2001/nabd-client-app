@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../cubits/language/language_cubit.dart';
-import '../../cubits/language/language_state.dart';
-import '../../../core/utils/restart_widget.dart';
+
+import '../../../../core/utils/restart_widget.dart';
+import '../cubits/language/language_cubit.dart';
+import '../cubits/language/language_state.dart';
 
 class LanguageScreen extends StatefulWidget {
   const LanguageScreen({super.key});
