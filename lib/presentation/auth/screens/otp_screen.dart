@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../core/localization/app_localization.dart';
+import '../../../../core/localization/app_localization.dart';
+import '../../home/screens/home_screen.dart';
 import '../../viewmodels/auth/otp_view_model.dart';
-import '../home/home_screen.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;

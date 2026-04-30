@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../cubits/language/language_cubit.dart';
-import '../../cubits/language/language_state.dart';
+
 import '../../../core/localization/app_localization.dart';
-import '../language/language_screen.dart';
+import '../language/cubits/language/language_cubit.dart';
+import '../language/cubits/language/language_state.dart';
+import '../language/screens/language_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

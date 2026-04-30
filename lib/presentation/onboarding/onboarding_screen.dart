@@ -4,7 +4,7 @@ import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
-import '../auth/auth_screen.dart';
+import '../auth/screens/auth_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

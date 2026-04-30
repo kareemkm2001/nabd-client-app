@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nabd_client_app/presentation/language/cubits/language/language_cubit.dart';
+import 'package:nabd_client_app/presentation/language/cubits/language/language_state.dart';
+import 'package:nabd_client_app/presentation/splash/splash_screen.dart';
 
 import 'core/utils/restart_widget.dart';
-import 'presentation/cubits/language/language_cubit.dart';
-import 'presentation/cubits/language/language_state.dart';
-import 'presentation/screens/splash/splash_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
