@@ -4,12 +4,11 @@ import 'package:nabd_client_app/core/theme/app_colors.dart';
 
 import '../../../../core/localization/app_localization.dart';
 import '../../../../core/widgets/app_text_field.dart';
-
 import '../../../core/widgets/country_picker.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
-import 'otp_screen.dart';
 import '../widgets/phone_text_field.dart';
+import 'otp_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   final AuthMode initialMode;
@@ -25,12 +24,17 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
   final _phoneController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
 
   late final AuthCubit _cubit;
+  late final AnimationController _entryController;
+  late final Animation<double> _iconOpacity;
+  late final Animation<double> _iconScale;
+  late final Animation<double> _cardOpacity;
+  late final Animation<Offset> _cardSlide;
   String? _lastNavigatedFullPhone;
 
   @override
@@ -40,6 +44,34 @@ class _AuthScreenState extends State<AuthScreen> {
       initialMode: widget.initialMode,
       initialFullPhoneNumber: widget.initialPhoneNumber,
     );
+    _entryController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _iconOpacity = CurvedAnimation(
+      parent: _entryController,
+      curve: const Interval(0, 0.45, curve: Curves.easeOut),
+    );
+    _iconScale = Tween<double>(begin: 0.94, end: 1).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0, 0.55, curve: Curves.easeOutBack),
+      ),
+    );
+    _cardOpacity = CurvedAnimation(
+      parent: _entryController,
+      curve: const Interval(0.25, 1, curve: Curves.easeOut),
+    );
+    _cardSlide = Tween<Offset>(
+      begin: const Offset(0, 0.06),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.25, 1, curve: Curves.easeOutCubic),
+      ),
+    );
+    _entryController.forward();
   }
 
   PageRouteBuilder<void> _buildRoute(Widget child) {
@@ -60,6 +92,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   void dispose() {
+    _entryController.dispose();
     _cubit.close();
     _phoneController.dispose();
     _firstNameController.dispose();
@@ -68,24 +101,20 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _showCountryPickerSheet() async {
+    final selectedCountry = _cubit.state.selectedCountry;
     final selected = await showModalBottomSheet<Country>(
       context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return SafeArea(
-          child: ListView.builder(
-            itemCount: CountryPicker.countries.length,
-            itemBuilder: (context, index) {
-              final country = CountryPicker.countries[index];
-              return ListTile(
-                title: Text('${country.flag} ${country.name}'),
-                trailing: Text(country.dialCode),
-                onTap: () => Navigator.of(context).pop(country),
-              );
-            },
-          ),
+        return _CountryPickerSheet(
+          countries: CountryPicker.countries,
+          selectedCountry: selectedCountry,
+          onSelected: (country) => Navigator.of(context).pop(country),
         );
       },
     );
@@ -100,16 +129,13 @@ class _AuthScreenState extends State<AuthScreen> {
       value: _cubit,
       child: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
-          // Keep controller synced with cubit normalization.
           if (_phoneController.text != state.phone) {
             _phoneController.value = TextEditingValue(
               text: state.phone,
-              selection:
-                  TextSelection.collapsed(offset: state.phone.length),
+              selection: TextSelection.collapsed(offset: state.phone.length),
             );
           }
 
-          // Navigate to OTP step when cubit confirms OTP send success.
           if (state is AuthOtpSentSuccess) {
             final fullPhone = state.fullPhoneNumber;
             if (fullPhone == null) return;
@@ -129,121 +155,370 @@ class _AuthScreenState extends State<AuthScreen> {
           builder: (context, state) {
             final isLoading = state is AuthLoading;
             final isSaudi = state.selectedCountry.dialCode == '+966';
-
             final String? inlineError = (state.errorMessage != null &&
                     state.errorMessage != state.phoneErrorMessage)
                 ? state.errorMessage
                 : null;
 
             return Scaffold(
-              backgroundColor: AppColors.background,
+              backgroundColor: const Color(0xFFF5F6F8),
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 520),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: 12),
-                        AuthToggle(
-                          mode: state.mode,
-                          onModeSelected: (mode) {
-                            if (isLoading) return;
-                            _cubit.changeAuthMode(mode);
-                          },
-                        ),
-                        const SizedBox(height: 28),
-
-                        Text(
-                          AppLocalization.t('mental_health_auth_title'),
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          AppLocalization.t(
-                            state.mode == AuthMode.login
-                                ? 'login_subtitle'
-                                : 'register_subtitle',
-                          ),
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-
-                        const SizedBox(height: 28),
-
-                        PhoneTextField(
-                          controller: _phoneController,
-                          selectedCountry: state.selectedCountry,
-                          errorText: state.phoneErrorMessage,
-                          hint: isSaudi
-                              ? '5XXXXXXXX'
-                              : AppLocalization.t('phone_number_hint'),
-                          onCountryTap: _showCountryPickerSheet,
-                          onChanged: (value) {
-                            if (value == _cubit.state.phone) return;
-                            _cubit.onPhoneChanged(value);
-                          },
-                        ),
-
-                        if (inlineError != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            inlineError,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
+                        const SizedBox(height: 24),
+                        FadeTransition(
+                          opacity: _iconOpacity,
+                          child: ScaleTransition(
+                            scale: _iconScale,
+                            child: Center(
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 420),
+                                switchInCurve: Curves.easeInOut,
+                                switchOutCurve: Curves.easeInOut,
+                                transitionBuilder: (child, animation) {
+                                  final slide = Tween<Offset>(
+                                    begin: const Offset(0, 0.03),
+                                    end: Offset.zero,
+                                  ).animate(
+                                    CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.easeInOut,
+                                    ),
+                                  );
+                                  final scale = Tween<double>(
+                                    begin: 0.92,
+                                    end: 1.0,
+                                  ).animate(
+                                    CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.easeInOutBack,
+                                    ),
+                                  );
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: SlideTransition(
+                                      position: slide,
+                                      child: ScaleTransition(
+                                        scale: scale,
+                                        child: child,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: _AuthHeaderIcon(
+                                  key: ValueKey<AuthMode>(state.mode),
+                                  icon: state.mode == AuthMode.login
+                                      ? Icons.lock_outline_rounded
+                                      : Icons.person_add_alt_1_rounded,
+                                ),
+                              ),
                             ),
                           ),
-                        ],
-
-                        const SizedBox(height: 20),
-
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 320),
-                          switchInCurve: Curves.easeOut,
-                          switchOutCurve: Curves.easeIn,
-                          transitionBuilder: (child, animation) {
-                            final offsetAnim = Tween<Offset>(
-                              begin: const Offset(0.05, 0),
-                              end: Offset.zero,
-                            ).animate(animation);
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position: offsetAnim,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: state.mode == AuthMode.login
-                              ? _LoginActions(
-                                  key: const ValueKey('loginActions'),
-                                  isSubmitting: isLoading,
-                                  onPressed: () {
-                                    _cubit.login(_phoneController.text);
-                                  },
-                                )
-                              : _RegisterActions(
-                                  key: const ValueKey('registerActions'),
-                                  isSubmitting: isLoading,
-                                  firstNameController: _firstNameController,
-                                  lastNameController: _lastNameController,
-                                  onPressed: () {
-                                    _cubit.register(
-                                      firstName: _firstNameController.text,
-                                      lastName: _lastNameController.text,
-                                      phone: _phoneController.text,
-                                    );
-                                  },
-                                ),
                         ),
+                        const SizedBox(height: 24),
+                        FadeTransition(
+                          opacity: _cardOpacity,
+                          child: SlideTransition(
+                            position: _cardSlide,
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(22),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.08),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 12),
+                                  ),
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.03),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  AuthToggle(
+                                    mode: state.mode,
+                                    onModeSelected: (mode) {
+                                      if (isLoading) return;
+                                      _cubit.changeAuthMode(mode);
+                                    },
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    AppLocalization.t('mental_health_auth_title'),
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context).textTheme.headlineSmall,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    AppLocalization.t(
+                                      state.mode == AuthMode.login
+                                          ? 'login_subtitle'
+                                          : 'register_subtitle',
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context).textTheme.bodyLarge,
+                                  ),
+                                  const SizedBox(height: 22),
+                                  _AuthModeFieldsSwitcher(
+                                    mode: state.mode,
+                                    firstNameController: _firstNameController,
+                                    lastNameController: _lastNameController,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  PhoneTextField(
+                                    controller: _phoneController,
+                                    selectedCountry: state.selectedCountry,
+                                    errorText: state.phoneErrorMessage,
+                                    hint: isSaudi
+                                        ? '5XXXXXXXX'
+                                        : AppLocalization.t('phone_number_hint'),
+                                    onCountryTap: _showCountryPickerSheet,
+                                    onChanged: (value) {
+                                      if (value == _cubit.state.phone) return;
+                                      _cubit.onPhoneChanged(value);
+                                    },
+                                  ),
+                                  if (inlineError != null) ...[
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      inlineError,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.error,
+                                      ),
+                                    ),
+                                  ],
+                                  const SizedBox(height: 18),
+                                  FilledButton(
+                                    onPressed: isLoading
+                                        ? null
+                                        : () {
+                                            if (state.mode == AuthMode.login) {
+                                              _cubit.login(_phoneController.text);
+                                            } else {
+                                              _cubit.register(
+                                                firstName: _firstNameController.text,
+                                                lastName: _lastNameController.text,
+                                                phone: _phoneController.text,
+                                              );
+                                            }
+                                          },
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor:
+                                          Theme.of(context).colorScheme.onSurface,
+                                      disabledBackgroundColor: Colors.white,
+                                      disabledForegroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                      elevation: 0,
+                                      side: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outlineVariant
+                                            .withValues(alpha: 0.6),
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      padding:
+                                          const EdgeInsets.symmetric(vertical: 14),
+                                    ),
+                                    child: isLoading
+                                        ? SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color:
+                                                  Theme.of(context).colorScheme.primary,
+                                            ),
+                                          )
+                                        : Text(
+                                            state.mode == AuthMode.login
+                                                ? AppLocalization.t('send_code')
+                                                : AppLocalization.t('create_account'),
+                                          ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
                 ),
               ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _CountryPickerSheet extends StatefulWidget {
+  final List<Country> countries;
+  final Country selectedCountry;
+  final ValueChanged<Country> onSelected;
+
+  const _CountryPickerSheet({
+    required this.countries,
+    required this.selectedCountry,
+    required this.onSelected,
+  });
+
+  @override
+  State<_CountryPickerSheet> createState() => _CountryPickerSheetState();
+}
+
+class _CountryPickerSheetState extends State<_CountryPickerSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final query = _searchQuery.trim().toLowerCase();
+    final filtered = widget.countries.where((country) {
+      if (query.isEmpty) return true;
+      return country.name.toLowerCase().contains(query) ||
+          country.dialCode.toLowerCase().contains(query);
+    }).toList(growable: false);
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 8,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.72,
+          minChildSize: 0.5,
+          maxChildSize: 0.92,
+          expand: false,
+          builder: (context, scrollController) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  AppLocalization.t('country_code'),
+                  style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: AppLocalization.t('search'),
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    filled: true,
+                    fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: ListView.separated(
+                    controller: scrollController,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: filtered.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 6),
+                    itemBuilder: (context, index) {
+                      final country = filtered[index];
+                      final isSelected = country == widget.selectedCountry;
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => widget.onSelected(country),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 220),
+                            curve: Curves.easeOutCubic,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: isSelected
+                                  ? colorScheme.primary.withValues(alpha: 0.14)
+                                  : colorScheme.surfaceContainerLowest,
+                              border: Border.all(
+                                color: isSelected
+                                    ? colorScheme.primary
+                                    : colorScheme.outlineVariant.withValues(alpha: 0.45),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(country.flag, style: textTheme.titleMedium),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    country.name,
+                                    style: textTheme.bodyLarge?.copyWith(
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  country.dialCode,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: isSelected
+                                        ? colorScheme.primary
+                                        : colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                if (isSelected) ...[
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.check_circle_rounded,
+                                    size: 20,
+                                    color: colorScheme.primary,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           },
         ),
@@ -266,54 +541,57 @@ class AuthToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: LayoutBuilder(
-        builder: (context, _) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              AnimatedAlign(
-                duration: const Duration(milliseconds: 260),
-                curve: Curves.easeInOut,
-                alignment:
-                    mode == AuthMode.login ? Alignment.centerLeft : Alignment.centerRight,
-                child: FractionallySizedBox(
-                  widthFactor: 0.5,
-                  child: Container(
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: cs.primary,
-                      borderRadius: BorderRadius.circular(12),
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: LayoutBuilder(
+          builder: (context, _) {
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                AnimatedAlign(
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.easeInOutCubic,
+                  alignment:
+                      mode == AuthMode.login ? Alignment.centerLeft : Alignment.centerRight,
+                  child: FractionallySizedBox(
+                    widthFactor: 0.5,
+                    child: Container(
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: cs.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: _ToggleTab(
-                      label: AppLocalization.t('login'),
-                      selected: mode == AuthMode.login,
-                      onTap: () => onModeSelected(AuthMode.login),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ToggleTab(
+                        label: AppLocalization.t('login'),
+                        selected: mode == AuthMode.login,
+                        onTap: () => onModeSelected(AuthMode.login),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: _ToggleTab(
-                      label: AppLocalization.t('register'),
-                      selected: mode == AuthMode.register,
-                      onTap: () => onModeSelected(AuthMode.register),
+                    Expanded(
+                      child: _ToggleTab(
+                        label: AppLocalization.t('register'),
+                        selected: mode == AuthMode.register,
+                        onTap: () => onModeSelected(AuthMode.register),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -353,92 +631,91 @@ class _ToggleTab extends StatelessWidget {
   }
 }
 
-class _LoginActions extends StatelessWidget {
-  final VoidCallback onPressed;
-  final bool isSubmitting;
-
-  const _LoginActions({
-    super.key,
-    required this.onPressed,
-    required this.isSubmitting,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        FilledButton(
-          onPressed: isSubmitting ? null : onPressed,
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          child: isSubmitting
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(AppLocalization.t('send_code')),
-        ),
-      ],
-    );
-  }
-}
-
-class _RegisterActions extends StatelessWidget {
-  final VoidCallback onPressed;
-  final bool isSubmitting;
+class _AuthModeFieldsSwitcher extends StatelessWidget {
+  final AuthMode mode;
   final TextEditingController firstNameController;
   final TextEditingController lastNameController;
 
-  const _RegisterActions({
-    super.key,
-    required this.onPressed,
-    required this.isSubmitting,
+  const _AuthModeFieldsSwitcher({
+    required this.mode,
     required this.firstNameController,
     required this.lastNameController,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppTextField(
-          titleKey: 'first_name',
-          controller: firstNameController,
-          margin: 0,
-          keyboardType: TextInputType.name,
-        ),
-        AppTextField(
-          titleKey: 'last_name',
-          controller: lastNameController,
-          margin: 0,
-          keyboardType: TextInputType.name,
-        ),
-        const SizedBox(height: 8),
-        FilledButton(
-          onPressed: isSubmitting ? null : onPressed,
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 420),
+      reverseDuration: const Duration(milliseconds: 300),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) {
+        final isRegisterContent = child.key == const ValueKey('register-fields');
+        final beginX = isRegisterContent ? 0.1 : -0.1;
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: Offset(beginX, 0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
           ),
-          child: isSubmitting
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(AppLocalization.t('create_account')),
-        ),
-      ],
+        );
+      },
+      child: mode == AuthMode.login
+          ? const SizedBox(key: ValueKey('login-empty'))
+          : Column(
+              key: const ValueKey('register-fields'),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppTextField(
+                  titleKey: 'first_name',
+                  controller: firstNameController,
+                  margin: 0,
+                  keyboardType: TextInputType.name,
+                ),
+                AppTextField(
+                  titleKey: 'last_name',
+                  controller: lastNameController,
+                  margin: 0,
+                  keyboardType: TextInputType.name,
+                ),
+              ],
+            ),
     );
   }
 }
 
+class _AuthHeaderIcon extends StatelessWidget {
+  final IconData icon;
+
+  const _AuthHeaderIcon({
+    super.key,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 72,
+      width: 72,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Icon(
+        icon,
+        size: 36,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+    );
+  }
+}

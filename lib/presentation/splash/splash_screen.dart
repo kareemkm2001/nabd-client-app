@@ -8,13 +8,11 @@ import '../onboarding/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
-
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
 
   late AnimationController _scaleController;
   late AnimationController _rotateController;
@@ -26,7 +24,6 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    /// Scale (ضخم جدًا + overshoot)
     _scaleController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
@@ -35,11 +32,11 @@ class _SplashScreenState extends State<SplashScreen>
     _scaleAnimation = Tween<double>(begin: 8, end: 1).animate(
       CurvedAnimation(
         parent: _scaleController,
-        curve: Curves.easeOutBack, // ده اللي بيعمل الرجّة الحلوة
+        curve: Curves.easeOutBack,
       ),
     );
 
-    /// Rotation (لفة سريعة جدًا مرة واحدة)
+
     _rotateController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -52,14 +49,12 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    /// Delay بسيط + تشغيل
     Future.delayed(const Duration(milliseconds: 1000), () {
       _scaleController.forward().then((_) {
         _rotateController.forward(); // لفة واحدة سريعة
       });
     });
 
-    /// Navigation
     Timer(const Duration(milliseconds: 3500), () {
       if (!mounted) return;
 

@@ -4,10 +4,6 @@ import 'package:nabd_client_app/core/localization/app_localization.dart';
 import 'package:nabd_client_app/core/services/auth_service.dart';
 import 'package:nabd_client_app/core/widgets/country_picker.dart';
 
-import '../../../presentation/viewmodels/auth/login_view_model.dart';
-import '../../../presentation/viewmodels/auth/register_view_model.dart';
-import '../../../presentation/viewmodels/auth/otp_view_model.dart';
-
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -27,10 +23,6 @@ class AuthCubit extends Cubit<AuthState> {
             errorMessage: null,
           ),
         ) {
-    _loginValidator = LoginViewModel(authService: _authService);
-    _registerValidator = RegisterViewModel(authService: _authService);
-    _otpValidator = OtpViewModel(authService: _authService);
-
     if (initialFullPhoneNumber != null && initialFullPhoneNumber.isNotEmpty) {
       setInitialPhoneNumber(initialFullPhoneNumber);
     }
@@ -38,20 +30,31 @@ class AuthCubit extends Cubit<AuthState> {
 
   final AuthService _authService;
 
-  late final LoginViewModel _loginValidator;
-  late final RegisterViewModel _registerValidator;
-  late final OtpViewModel _otpValidator;
-
   bool _hasEditedPhone = false;
-  bool _hasSubmitted = false;
+
+  bool _isSaudi(Country country) => country.dialCode == '+966';
 
   String normalizePhoneInput(
     String rawPhone, {
     Country? country,
   }) {
     final c = country ?? state.selectedCountry;
-    _loginValidator.selectCountry(c);
-    return _loginValidator.normalizeInput(rawPhone);
+    var digitsOnly = rawPhone.replaceAll(RegExp(r'\D'), '');
+
+    if (_isSaudi(c)) {
+      if (digitsOnly.isNotEmpty && !digitsOnly.startsWith('5')) {
+        digitsOnly = '';
+      }
+      if (digitsOnly.length > 9) {
+        digitsOnly = digitsOnly.substring(0, 9);
+      }
+      return digitsOnly;
+    }
+
+    if (digitsOnly.length > 10) {
+      digitsOnly = digitsOnly.substring(0, 10);
+    }
+    return digitsOnly;
   }
 
   String buildFullPhoneNumber(
@@ -116,23 +119,89 @@ class AuthCubit extends Cubit<AuthState> {
     Country? country,
   }) {
     final c = country ?? state.selectedCountry;
-    _loginValidator.selectCountry(c);
-    return _loginValidator.validatePhone(phoneDigits);
+    final digits = phoneDigits.trim();
+
+    if (digits.isEmpty) {
+      return 'empty';
+    }
+
+    if (_isSaudi(c)) {
+      if (!digits.startsWith('5')) {
+        return 'saudi_start';
+      }
+      if (digits.length != 9) {
+        return 'saudi_length';
+      }
+      if (!RegExp(r'^\d{9}$').hasMatch(digits)) {
+        return 'invalid';
+      }
+      return null;
+    }
+
+    if (!RegExp(r'^\d{6,10}$').hasMatch(digits)) {
+      return 'min_length';
+    }
+
+    return null;
   }
 
   String? _validateNames({required String firstName, required String lastName}) {
-    final firstErrorCode = _registerValidator.validateName(firstName);
+    final firstErrorCode = _validateNameErrorCode(firstName);
     if (firstErrorCode != null) return _mapNameErrorCode(firstErrorCode);
 
-    final lastErrorCode = _registerValidator.validateName(lastName);
+    final lastErrorCode = _validateNameErrorCode(lastName);
     if (lastErrorCode != null) return _mapNameErrorCode(lastErrorCode);
 
     return null;
   }
 
+  String? _validateNameErrorCode(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      return 'empty';
+    }
+    if (trimmed.length < 2) {
+      return 'too_short';
+    }
+    return null;
+  }
+
   String? _validateOtp(String code) {
-    final errorCode = _otpValidator.validateOtp(code);
+    final errorCode = _validateOtpErrorCode(code);
     return _mapOtpErrorCode(errorCode);
+  }
+
+  String sanitizeOtpInput(String rawValue) {
+    return rawValue.replaceAll(RegExp(r'\D'), '');
+  }
+
+  List<String> splitOtpDigits(
+    String rawValue, {
+    int length = 4,
+  }) {
+    final clean = sanitizeOtpInput(rawValue);
+    final result = List<String>.filled(length, '');
+    for (var i = 0; i < clean.length && i < length; i++) {
+      result[i] = clean[i];
+    }
+    return result;
+  }
+
+  String composeOtp(List<String> digits) {
+    return sanitizeOtpInput(digits.join());
+  }
+
+  String? _validateOtpErrorCode(String code) {
+    if (code.isEmpty) {
+      return 'empty';
+    }
+    if (code.length != 4) {
+      return 'invalid_length_4';
+    }
+    if (!RegExp(r'^\d+$').hasMatch(code)) {
+      return 'invalid_digits';
+    }
+    return null;
   }
 
   void changeAuthMode(AuthMode mode) {
@@ -222,8 +291,6 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> sendOtp(String phone) async {
-    _hasSubmitted = true;
-
     final normalized = normalizePhoneInput(phone);
     final phoneError = validatePhone(normalized);
 
@@ -293,8 +360,6 @@ class AuthCubit extends Cubit<AuthState> {
     required String lastName,
     required String phone,
   }) async {
-    _hasSubmitted = true;
-
     final normalized = normalizePhoneInput(phone);
     final phoneError = validatePhone(normalized);
     if (phoneError != null) {
