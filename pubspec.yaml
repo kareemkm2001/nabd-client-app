@@ -41,6 +41,9 @@ dependencies:
   flutter_native_splash: ^2.4.7
   flutter_svg: ^2.2.4
   flutter_otp_text_field: ^1.5.1+1
+  dio: ^5.9.2
+  dartz: ^0.10.1
+  get_it: ^9.2.1
 
 
 dev_dependencies:
