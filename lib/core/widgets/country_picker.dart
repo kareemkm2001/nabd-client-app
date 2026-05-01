@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:nabd_client_app/core/localization/app_localization.dart';
 
 class Country {
-  final String name;
+  final String nameKey;
   final String dialCode;
   final String flag;
 
   const Country({
-    required this.name,
+    required this.nameKey,
     required this.dialCode,
     required this.flag,
   });
@@ -23,13 +24,13 @@ class CountryPicker extends StatelessWidget {
   });
 
   static const List<Country> countries = [
-    Country(name: 'Saudi Arabia', dialCode: '+966', flag: '🇸🇦'),
-    Country(name: 'Egypt', dialCode: '+20', flag: '🇪🇬'),
-    Country(name: 'United Arab Emirates', dialCode: '+971', flag: '🇦🇪'),
-    Country(name: 'Kuwait', dialCode: '+965', flag: '🇰🇼'),
-    Country(name: 'Qatar', dialCode: '+974', flag: '🇶🇦'),
-    Country(name: 'United States', dialCode: '+1', flag: '🇺🇸'),
-    Country(name: 'United Kingdom', dialCode: '+44', flag: '🇬🇧'),
+    Country(nameKey: 'country_saudi_arabia', dialCode: '+966', flag: '🇸🇦'),
+    Country(nameKey: 'country_egypt', dialCode: '+20', flag: '🇪🇬'),
+    Country(nameKey: 'country_united_arab_emirates', dialCode: '+971', flag: '🇦🇪'),
+    Country(nameKey: 'country_kuwait', dialCode: '+965', flag: '🇰🇼'),
+    Country(nameKey: 'country_qatar', dialCode: '+974', flag: '🇶🇦'),
+    Country(nameKey: 'country_united_states', dialCode: '+1', flag: '🇺🇸'),
+    Country(nameKey: 'country_united_kingdom', dialCode: '+44', flag: '🇬🇧'),
   ];
 
   @override
@@ -38,7 +39,7 @@ class CountryPicker extends StatelessWidget {
       value: selectedCountry,
       borderRadius: BorderRadius.circular(16),
       decoration: InputDecoration(
-        labelText: 'Country',
+        labelText: AppLocalization.t('country'),
         filled: true,
         fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
         border: OutlineInputBorder(
@@ -50,7 +51,7 @@ class CountryPicker extends StatelessWidget {
             (country) => DropdownMenuItem<Country>(
               value: country,
               child: Text(
-                '${country.flag} ${country.name} (${country.dialCode})',
+                '${country.flag} ${AppLocalization.t(country.nameKey)} (${country.dialCode})',
                 overflow: TextOverflow.ellipsis,
               ),
             ),

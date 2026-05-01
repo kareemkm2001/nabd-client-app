@@ -76,6 +76,8 @@ class AppTextStyles {
     fontSize: 22,
     fontWeight: FontWeight.normal,
     color: AppColors.surface,
+    fontFamily: 'Cairo'
+
   );
 
   static TextStyle largeBoldPrimary = TextStyle(
@@ -97,9 +99,10 @@ class AppTextStyles {
   );
 
   static TextStyle largeBoldWhite = TextStyle(
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: FontWeight.bold,
     color: AppColors.surface,
+    fontFamily: 'Cairo'
   );
 
   // ================= MEDIUM =================
@@ -120,6 +123,7 @@ class AppTextStyles {
     fontSize: 16,
     fontWeight: FontWeight.normal,
     color: AppColors.textSecondary,
+    fontFamily: 'Cairo'
   );
 
   static TextStyle mediumWhite = TextStyle(
@@ -150,6 +154,8 @@ class AppTextStyles {
     fontSize: 16,
     fontWeight: FontWeight.bold,
     color: AppColors.surface,
+    fontFamily: 'Cairo'
+
   );
 
   // ================= SMALL =================

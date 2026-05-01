@@ -7,12 +7,14 @@ class AppButton extends StatelessWidget {
   final String titleKey;
   final VoidCallback onTap;
   final double margin;
+  final Widget? child ;
 
   const AppButton({
     super.key,
-    required this.titleKey,
+    this.titleKey = "",
     required this.onTap,
     this.margin = 24,
+    this.child
   });
 
   @override
@@ -29,7 +31,7 @@ class AppButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: AppText(
+          child: child ?? AppText(
               jsonKey: titleKey,
               textStyle: AppTextStyles.mediumWhite
           ),

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
+import 'package:nabd_client_app/core/theme/app_text_styles.dart';
+import 'package:nabd_client_app/core/widgets/app_button.dart';
+import 'package:nabd_client_app/core/widgets/app_text.dart';
 
 import '../../../../core/localization/app_localization.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -100,29 +104,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  Future<void> _showCountryPickerSheet() async {
-    final selectedCountry = _cubit.state.selectedCountry;
-    final selected = await showModalBottomSheet<Country>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return _CountryPickerSheet(
-          countries: CountryPicker.countries,
-          selectedCountry: selectedCountry,
-          onSelected: (country) => Navigator.of(context).pop(country),
-        );
-      },
-    );
-
-    if (selected == null || !mounted) return;
-    _cubit.selectCountry(selected);
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AuthCubit>.value(
@@ -161,7 +142,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                 : null;
 
             return Scaffold(
-              backgroundColor: const Color(0xFFF5F6F8),
+              backgroundColor: AppColors.background,
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
@@ -213,9 +194,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                 },
                                 child: _AuthHeaderIcon(
                                   key: ValueKey<AuthMode>(state.mode),
-                                  icon: state.mode == AuthMode.login
-                                      ? Icons.lock_outline_rounded
-                                      : Icons.person_add_alt_1_rounded,
+                                  icon: state.mode == AuthMode.login ? Icons.lock_outline_rounded : Icons.person_add_alt_1_rounded,
                                 ),
                               ),
                             ),
@@ -258,7 +237,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                   Text(
                                     AppLocalization.t('mental_health_auth_title'),
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context).textTheme.headlineSmall,
+                                    style: AppTextStyles.largeBlack,
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -268,7 +247,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                           : 'register_subtitle',
                                     ),
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context).textTheme.bodyLarge,
+                                    style: AppTextStyles.mediumGrey,
                                   ),
                                   const SizedBox(height: 22),
                                   _AuthModeFieldsSwitcher(
@@ -278,13 +257,15 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                   ),
                                   const SizedBox(height: 16),
                                   PhoneTextField(
+                                    titleKey: 'phone',
+                                    margin: 16,
                                     controller: _phoneController,
                                     selectedCountry: state.selectedCountry,
                                     errorText: state.phoneErrorMessage,
-                                    hint: isSaudi
-                                        ? '5XXXXXXXX'
+                                    hintKey: isSaudi
+                                        ? 'saudi_phone_hint'
                                         : AppLocalization.t('phone_number_hint'),
-                                    onCountryTap: _showCountryPickerSheet,
+                                    onCountryChanged: _cubit.selectCountry,
                                     onChanged: (value) {
                                       if (value == _cubit.state.phone) return;
                                       _cubit.onPhoneChanged(value);
@@ -300,7 +281,242 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                     ),
                                   ],
                                   const SizedBox(height: 18),
-                                  FilledButton(
+                                  AppButton(
+                                    onTap: () {
+                                      if(!isLoading){
+                                        if (state.mode == AuthMode.login) {
+                                          _cubit.login(_phoneController.text);
+                                        } else {
+                                          _cubit.register(
+                                            firstName: _firstNameController.text,
+                                            lastName: _lastNameController.text,
+                                            phone: _phoneController.text,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    margin: 12,
+                                    child: isLoading
+                                        ? SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: AppColors.surface
+                                            ),
+                                          )
+                                        : AppText(
+                                              jsonKey: state.mode == AuthMode.login ? 'send_code' : 'create_account',
+                                              textStyle: AppTextStyles.mediumWhite,
+                                        ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class AuthToggle extends StatelessWidget {
+  final AuthMode mode;
+  final ValueChanged<AuthMode> onModeSelected;
+
+  const AuthToggle({
+    super.key,
+    required this.mode,
+    required this.onModeSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: AppColors.secondary.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: LayoutBuilder(
+          builder: (context, _) {
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                AnimatedAlign(
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.easeInOutCubic,
+                  alignment:
+                      mode == AuthMode.login ? Alignment.centerLeft : Alignment.centerRight,
+                  child: FractionallySizedBox(
+                    widthFactor: 0.5,
+                    child: Container(
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ToggleTab(
+                        label: AppLocalization.t('login'),
+                        selected: mode == AuthMode.login,
+                        onTap: () => onModeSelected(AuthMode.login),
+                      ),
+                    ),
+                    Expanded(
+                      child: _ToggleTab(
+                        label: AppLocalization.t('register'),
+                        selected: mode == AuthMode.register,
+                        onTap: () => onModeSelected(AuthMode.register),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _ToggleTab extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ToggleTab({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Center(
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeInOut,
+          style: selected ? AppTextStyles.mediumBoldWhite : AppTextStyles.mediumGrey,
+          child: Text(label),
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthModeFieldsSwitcher extends StatelessWidget {
+  final AuthMode mode;
+  final TextEditingController firstNameController;
+  final TextEditingController lastNameController;
+
+  const _AuthModeFieldsSwitcher({
+    required this.mode,
+    required this.firstNameController,
+    required this.lastNameController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 420),
+      reverseDuration: const Duration(milliseconds: 300),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) {
+        final isRegisterContent = child.key == const ValueKey('register-fields');
+        final beginX = isRegisterContent ? 0.1 : -0.1;
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: Offset(beginX, 0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
+      },
+      child: mode == AuthMode.login
+          ? const SizedBox(key: ValueKey('login-empty'))
+          : Column(
+              key: const ValueKey('register-fields'),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppTextField(
+                  titleKey: 'first_name',
+                  controller: firstNameController,
+                  margin: 16,
+                  keyboardType: TextInputType.name,
+                ),
+                AppTextField(
+                  titleKey: 'last_name',
+                  controller: lastNameController,
+                  margin: 16,
+                  keyboardType: TextInputType.name,
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _AuthHeaderIcon extends StatelessWidget {
+  final IconData icon;
+
+  const _AuthHeaderIcon({
+    super.key,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 72,
+      width: 72,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.textPrimary.withValues(alpha: 0.06),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Icon(
+        icon,
+        size: 36,
+        color: AppColors.primary,
+      ),
+    );
+  }
+}
+
+/*
+FilledButton(
                                     onPressed: isLoading
                                         ? null
                                         : () {
@@ -351,371 +567,4 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                                 : AppLocalization.t('create_account'),
                                           ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _CountryPickerSheet extends StatefulWidget {
-  final List<Country> countries;
-  final Country selectedCountry;
-  final ValueChanged<Country> onSelected;
-
-  const _CountryPickerSheet({
-    required this.countries,
-    required this.selectedCountry,
-    required this.onSelected,
-  });
-
-  @override
-  State<_CountryPickerSheet> createState() => _CountryPickerSheetState();
-}
-
-class _CountryPickerSheetState extends State<_CountryPickerSheet> {
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final query = _searchQuery.trim().toLowerCase();
-    final filtered = widget.countries.where((country) {
-      if (query.isEmpty) return true;
-      return country.name.toLowerCase().contains(query) ||
-          country.dialCode.toLowerCase().contains(query);
-    }).toList(growable: false);
-
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 8,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        ),
-        child: DraggableScrollableSheet(
-          initialChildSize: 0.72,
-          minChildSize: 0.5,
-          maxChildSize: 0.92,
-          expand: false,
-          builder: (context, scrollController) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  AppLocalization.t('country_code'),
-                  style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _searchController,
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: AppLocalization.t('search'),
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    filled: true,
-                    fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: ListView.separated(
-                    controller: scrollController,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: filtered.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 6),
-                    itemBuilder: (context, index) {
-                      final country = filtered[index];
-                      final isSelected = country == widget.selectedCountry;
-                      return Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(14),
-                          onTap: () => widget.onSelected(country),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 220),
-                            curve: Curves.easeOutCubic,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              color: isSelected
-                                  ? colorScheme.primary.withValues(alpha: 0.14)
-                                  : colorScheme.surfaceContainerLowest,
-                              border: Border.all(
-                                color: isSelected
-                                    ? colorScheme.primary
-                                    : colorScheme.outlineVariant.withValues(alpha: 0.45),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Text(country.flag, style: textTheme.titleMedium),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    country.name,
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  country.dialCode,
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    color: isSelected
-                                        ? colorScheme.primary
-                                        : colorScheme.onSurfaceVariant,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                if (isSelected) ...[
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    Icons.check_circle_rounded,
-                                    size: 20,
-                                    color: colorScheme.primary,
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class AuthToggle extends StatelessWidget {
-  final AuthMode mode;
-  final ValueChanged<AuthMode> onModeSelected;
-
-  const AuthToggle({
-    super.key,
-    required this.mode,
-    required this.onModeSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: LayoutBuilder(
-          builder: (context, _) {
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                AnimatedAlign(
-                  duration: const Duration(milliseconds: 260),
-                  curve: Curves.easeInOutCubic,
-                  alignment:
-                      mode == AuthMode.login ? Alignment.centerLeft : Alignment.centerRight,
-                  child: FractionallySizedBox(
-                    widthFactor: 0.5,
-                    child: Container(
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: cs.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _ToggleTab(
-                        label: AppLocalization.t('login'),
-                        selected: mode == AuthMode.login,
-                        onTap: () => onModeSelected(AuthMode.login),
-                      ),
-                    ),
-                    Expanded(
-                      child: _ToggleTab(
-                        label: AppLocalization.t('register'),
-                        selected: mode == AuthMode.register,
-                        onTap: () => onModeSelected(AuthMode.register),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _ToggleTab extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _ToggleTab({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final textStyle = Theme.of(context).textTheme.labelLarge;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: Center(
-        child: AnimatedDefaultTextStyle(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeInOut,
-          style: textStyle!.copyWith(
-            color: selected ? cs.onPrimary : cs.onSurfaceVariant,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-          ),
-          child: Text(label),
-        ),
-      ),
-    );
-  }
-}
-
-class _AuthModeFieldsSwitcher extends StatelessWidget {
-  final AuthMode mode;
-  final TextEditingController firstNameController;
-  final TextEditingController lastNameController;
-
-  const _AuthModeFieldsSwitcher({
-    required this.mode,
-    required this.firstNameController,
-    required this.lastNameController,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 420),
-      reverseDuration: const Duration(milliseconds: 300),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) {
-        final isRegisterContent = child.key == const ValueKey('register-fields');
-        final beginX = isRegisterContent ? 0.1 : -0.1;
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: Offset(beginX, 0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
-      },
-      child: mode == AuthMode.login
-          ? const SizedBox(key: ValueKey('login-empty'))
-          : Column(
-              key: const ValueKey('register-fields'),
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AppTextField(
-                  titleKey: 'first_name',
-                  controller: firstNameController,
-                  margin: 0,
-                  keyboardType: TextInputType.name,
-                ),
-                AppTextField(
-                  titleKey: 'last_name',
-                  controller: lastNameController,
-                  margin: 0,
-                  keyboardType: TextInputType.name,
-                ),
-              ],
-            ),
-    );
-  }
-}
-
-class _AuthHeaderIcon extends StatelessWidget {
-  final IconData icon;
-
-  const _AuthHeaderIcon({
-    super.key,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 72,
-      width: 72,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Icon(
-        icon,
-        size: 36,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-    );
-  }
-}
+ */

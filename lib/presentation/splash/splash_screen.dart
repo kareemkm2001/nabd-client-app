@@ -109,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             right: 0,
             child: Center(
               child: AppText(
-                jsonKey: "Developed and operated by NWIT",
+                jsonKey: 'developed_operated_nwit',
                 textStyle: AppTextStyles.mediumBlack,
               ),
             ),
