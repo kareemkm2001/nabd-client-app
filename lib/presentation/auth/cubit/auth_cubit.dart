@@ -2,12 +2,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/localization/app_localization.dart';
 import 'package:nabd_client_app/core/services/auth_service.dart';
 import 'package:nabd_client_app/core/widgets/country_picker.dart';
+import '../../../domain/usecases/auth_use_case.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit() : super(const AuthState());
+  final AuthUseCase authUseCase;
+
+  AuthCubit(this.authUseCase) : super(const AuthState());
 
   final AuthService _authService = AuthService();
+
   bool _hasEditedPhone = false;
 
   void updatePhone(String value) {
@@ -196,4 +200,11 @@ class AuthCubit extends Cubit<AuthState> {
     if (!RegExp(r'^\d{6,10}$').hasMatch(digits)) return AppLocalization.t('phone_validation');
     return null;
   }
+
+  void requestOTO() async {
+    final result = await authUseCase.requestOTP("530572149");
+    result.fold((l) => print(l.message), (r) => print(r));
+  }
+
+
 }

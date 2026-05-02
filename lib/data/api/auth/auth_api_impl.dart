@@ -26,8 +26,11 @@ class AuthApiImpl implements AuthApi {
         }
       );
 
+      print(response.data["message"]);
+
       return Right(response.data["message"]);
     } on DioException catch (e){
+      print(e.error);
       return Left(ErrorHandler.handle(e));
 
     }catch (e){
