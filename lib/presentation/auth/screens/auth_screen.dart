@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
@@ -44,10 +43,16 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _cubit = AuthCubit(
-      initialMode: widget.initialMode,
-      initialFullPhoneNumber: widget.initialPhoneNumber,
-    );
+    _cubit = AuthCubit();
+    
+    // Set initial values from widget parameters
+    if (widget.initialMode != AuthMode.login) {
+      _cubit.changeAuthMode(widget.initialMode);
+    }
+    if (widget.initialPhoneNumber != null) {
+      _cubit.updatePhone(widget.initialPhoneNumber!);
+    }
+
     _entryController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
@@ -110,6 +115,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       value: _cubit,
       child: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
+          // Sync controllers with state for fields that might be modified (e.g., normalization)
           if (_phoneController.text != state.phone) {
             _phoneController.value = TextEditingValue(
               text: state.phone,
@@ -117,15 +123,16 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             );
           }
 
-          if (state is AuthOtpSentSuccess) {
+          if (state.isOtpSent) {
             final fullPhone = state.fullPhoneNumber;
             if (fullPhone == null) return;
             if (_lastNavigatedFullPhone == fullPhone) return;
             _lastNavigatedFullPhone = fullPhone;
+            
             Navigator.of(context).push(
               _buildRoute(
                 BlocProvider.value(
-                  value: context.read<AuthCubit>(),
+                  value: _cubit,
                   child: OtpScreen(phoneNumber: fullPhone),
                 ),
               ),
@@ -134,7 +141,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         },
         child: BlocBuilder<AuthCubit, AuthState>(
           builder: (context, state) {
-            final isLoading = state is AuthLoading;
+            final isLoading = state.isLoading;
             final isSaudi = state.selectedCountry.dialCode == '+966';
             final String? inlineError = (state.errorMessage != null &&
                     state.errorMessage != state.phoneErrorMessage)
@@ -194,7 +201,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                 },
                                 child: _AuthHeaderIcon(
                                   key: ValueKey<AuthMode>(state.mode),
-                                  icon: state.mode == AuthMode.login ? Icons.lock_outline_rounded : Icons.person_add_alt_1_rounded,
+                                  icon: state.mode == AuthMode.login 
+                                      ? Icons.lock_outline_rounded 
+                                      : Icons.person_add_alt_1_rounded,
                                 ),
                               ),
                             ),
@@ -212,12 +221,12 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                 borderRadius: BorderRadius.circular(22),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.08),
+                                    color: Colors.black.withOpacity(0.08),
                                     blurRadius: 24,
                                     offset: const Offset(0, 12),
                                   ),
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.03),
+                                    color: Colors.black.withOpacity(0.03),
                                     blurRadius: 8,
                                     offset: const Offset(0, 3),
                                   ),
@@ -254,6 +263,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                     mode: state.mode,
                                     firstNameController: _firstNameController,
                                     lastNameController: _lastNameController,
+                                    onFirstNameChanged: _cubit.updateFirstName,
+                                    onLastNameChanged: _cubit.updateLastName,
                                   ),
                                   const SizedBox(height: 16),
                                   PhoneTextField(
@@ -266,10 +277,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                         ? 'saudi_phone_hint'
                                         : AppLocalization.t('phone_number_hint'),
                                     onCountryChanged: _cubit.selectCountry,
-                                    onChanged: (value) {
-                                      if (value == _cubit.state.phone) return;
-                                      _cubit.onPhoneChanged(value);
-                                    },
+                                    onChanged: _cubit.updatePhone,
                                   ),
                                   if (inlineError != null) ...[
                                     const SizedBox(height: 8),
@@ -285,19 +293,15 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                     onTap: () {
                                       if(!isLoading){
                                         if (state.mode == AuthMode.login) {
-                                          _cubit.login(_phoneController.text);
+                                          _cubit.login();
                                         } else {
-                                          _cubit.register(
-                                            firstName: _firstNameController.text,
-                                            lastName: _lastNameController.text,
-                                            phone: _phoneController.text,
-                                          );
+                                          _cubit.register();
                                         }
                                       }
                                     },
                                     margin: 12,
                                     child: isLoading
-                                        ? SizedBox(
+                                        ? const SizedBox(
                                           height: 20,
                                           width: 20,
                                           child: CircularProgressIndicator(
@@ -430,11 +434,15 @@ class _AuthModeFieldsSwitcher extends StatelessWidget {
   final AuthMode mode;
   final TextEditingController firstNameController;
   final TextEditingController lastNameController;
+  final ValueChanged<String> onFirstNameChanged;
+  final ValueChanged<String> onLastNameChanged;
 
   const _AuthModeFieldsSwitcher({
     required this.mode,
     required this.firstNameController,
     required this.lastNameController,
+    required this.onFirstNameChanged,
+    required this.onLastNameChanged,
   });
 
   @override
@@ -469,12 +477,14 @@ class _AuthModeFieldsSwitcher extends StatelessWidget {
                   controller: firstNameController,
                   margin: 16,
                   keyboardType: TextInputType.name,
+                  onChanged: onFirstNameChanged,
                 ),
                 AppTextField(
                   titleKey: 'last_name',
                   controller: lastNameController,
                   margin: 16,
                   keyboardType: TextInputType.name,
+                  onChanged: onLastNameChanged,
                 ),
               ],
             ),
@@ -500,7 +510,7 @@ class _AuthHeaderIcon extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: AppColors.textPrimary.withValues(alpha: 0.06),
+            color: AppColors.textPrimary.withOpacity(0.06),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -514,57 +524,3 @@ class _AuthHeaderIcon extends StatelessWidget {
     );
   }
 }
-
-/*
-FilledButton(
-                                    onPressed: isLoading
-                                        ? null
-                                        : () {
-                                            if (state.mode == AuthMode.login) {
-                                              _cubit.login(_phoneController.text);
-                                            } else {
-                                              _cubit.register(
-                                                firstName: _firstNameController.text,
-                                                lastName: _lastNameController.text,
-                                                phone: _phoneController.text,
-                                              );
-                                            }
-                                          },
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor:
-                                          Theme.of(context).colorScheme.onSurface,
-                                      disabledBackgroundColor: Colors.white,
-                                      disabledForegroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
-                                      elevation: 0,
-                                      side: BorderSide(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outlineVariant
-                                            .withValues(alpha: 0.6),
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
-                                      padding:
-                                          const EdgeInsets.symmetric(vertical: 14),
-                                    ),
-                                    child: isLoading
-                                        ? SizedBox(
-                                            height: 20,
-                                            width: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color:
-                                                  Theme.of(context).colorScheme.primary,
-                                            ),
-                                          )
-                                        : Text(
-                                            state.mode == AuthMode.login
-                                                ? AppLocalization.t('send_code')
-                                                : AppLocalization.t('create_account'),
-                                          ),
-                                  ),
- */
