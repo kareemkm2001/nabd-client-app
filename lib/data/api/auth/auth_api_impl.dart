@@ -18,6 +18,8 @@ class AuthApiImpl implements AuthApi {
   @override
   Future<Either<Failure, String>> requestOTP(String numberPhone) async {
 
+    print("kkkااااااااااااااااااااااااااااااااااااااااا");
+
     try {
       final response = await api.post(
         ApiConstants.requestOTP,
@@ -26,14 +28,15 @@ class AuthApiImpl implements AuthApi {
         }
       );
 
-      print(response.data["message"]);
+      print("نننننننننننننننننننننننننن${response.data["message"]}");
 
       return Right(response.data["message"]);
     } on DioException catch (e){
-      print(e.error);
+      print("مممممممممممممممم ${e.error}");
       return Left(ErrorHandler.handle(e));
 
     }catch (e){
+      print("،ننننننننننننن    ${e}");
       return Left(ServerFailure(e.toString()));
     }
 

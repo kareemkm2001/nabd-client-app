@@ -10,7 +10,6 @@ class AuthCubit extends Cubit<AuthState> {
 
   AuthCubit(this.authUseCase) : super(const AuthState());
 
-  final AuthService _authService = AuthService();
 
   bool _hasEditedPhone = false;
 
@@ -88,22 +87,11 @@ class AuthCubit extends Cubit<AuthState> {
     final fullPhone = _buildFullPhoneNumber(state.phone);
     emit(state.copyWith(isLoading: true, errorMessage: null, fullPhoneNumber: fullPhone));
 
-    final success = await _authService.createAccount(
-      firstName: state.firstName,
-      lastName: state.lastName,
-      phoneNumber: fullPhone,
-    );
+
 
     if (isClosed) return;
 
-    if (success) {
-      await _sendOtp();
-    } else {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: AppLocalization.t('phone_validation'),
-      ));
-    }
+
   }
 
   Future<void> verifyOtp() async {
@@ -115,17 +103,9 @@ class AuthCubit extends Cubit<AuthState> {
 
     emit(state.copyWith(isLoading: true, errorMessage: null));
 
-    final success = await _authService.verifyOtp(otpCode: otp);
     if (isClosed) return;
 
-    if (success) {
-      emit(state.copyWith(isLoading: false, isVerified: true));
-    } else {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: AppLocalization.t('otp_validation'),
-      ));
-    }
+
   }
 
   Future<void> resendOtp() async {
@@ -142,19 +122,9 @@ class AuthCubit extends Cubit<AuthState> {
       isOtpSent: false,
     ));
 
-    final success = await _authService.sendOtp(fullPhoneNumber: fullPhone);
     if (isClosed) return;
 
-    if (success) {
-      emit(state.copyWith(isLoading: false, isOtpSent: true));
-    } else {
-      final error = AppLocalization.t('phone_validation');
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: error,
-        phoneErrorMessage: error,
-      ));
-    }
+
   }
 
   // --- Helper Methods ---
@@ -202,6 +172,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   void requestOTO() async {
+    print("صفحة الكيوبت");
     final result = await authUseCase.requestOTP("530572149");
     result.fold((l) => print(l.message), (r) => print(r));
   }

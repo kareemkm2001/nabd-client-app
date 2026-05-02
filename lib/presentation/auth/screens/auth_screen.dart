@@ -103,7 +103,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   @override
   void dispose() {
     _entryController.dispose();
-    _cubit.close();
     _phoneController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
@@ -293,14 +292,15 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                   const SizedBox(height: 18),
                                   AppButton(
                                     onTap: () {
-                                      if(!isLoading){
-                                        _cubit.resendOtp();
+                                      print("صفحة الشاشة");
+                                      context.read<AuthCubit>().requestOTO();
+                                      /*if(!isLoading){
                                         if (state.mode == AuthMode.login) {
                                           _cubit.login();
                                         } else {
                                           _cubit.register();
                                         }
-                                      }
+                                      }*/
                                     },
                                     margin: 12,
                                     child: isLoading
