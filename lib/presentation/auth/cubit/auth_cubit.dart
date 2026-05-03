@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/localization/app_localization.dart';
 import 'package:nabd_client_app/core/services/auth_service.dart';
 import 'package:nabd_client_app/core/widgets/country_picker.dart';
+import 'package:nabd_client_app/domain/models/auth/request_OTP_model.dart';
 import '../../../domain/usecases/auth_use_case.dart';
 import 'auth_state.dart';
 
@@ -173,8 +174,11 @@ class AuthCubit extends Cubit<AuthState> {
 
   void requestOTO() async {
     print("صفحة الكيوبت");
-    final result = await authUseCase.requestOTP("530572149");
-    result.fold((l) => print(l.message), (r) => print(r));
+    final result = await authUseCase.requestOTP(RequestOtpModel(mobile: "530572149"));
+    result.fold(
+            (l) => print(l.message),
+            (r) => print(r.toJson())
+    );
   }
 
 

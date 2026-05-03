@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:nabd_client_app/core/error/failures.dart';
 import 'package:nabd_client_app/core/network/api_constants.dart';
 import 'package:nabd_client_app/core/network/api_service.dart';
+import 'package:nabd_client_app/domain/models/auth/request_OTP_model.dart';
+import 'package:nabd_client_app/domain/models/auth/response_OTP_model.dart';
 
 import '../../../core/error/error_handler.dart';
 import '../../../core/error/server_failure.dart';
@@ -16,21 +18,17 @@ class AuthApiImpl implements AuthApi {
   AuthApiImpl({required this.api});
 
   @override
-  Future<Either<Failure, String>> requestOTP(String numberPhone) async {
-
-    print("kkkااااااااااااااااااااااااااااااااااااااااا");
-
+  Future<Either<Failure, ResponseOtpModel>> requestOTP(RequestOtpModel requestOtpModel) async {
     try {
+
       final response = await api.post(
         ApiConstants.requestOTP,
-        data: {
-          "mobile": numberPhone
-        }
+        data: requestOtpModel.toJson()
       );
 
-      print("نننننننننننننننننننننننننن${response.data["message"]}");
+      final model = ResponseOtpModel.fromJson(response.data);
 
-      return Right(response.data["message"]);
+      return Right(model);
     } on DioException catch (e){
       print("مممممممممممممممم ${e.error}");
       return Left(ErrorHandler.handle(e));
@@ -39,8 +37,5 @@ class AuthApiImpl implements AuthApi {
       print("،ننننننننننننن    ${e}");
       return Left(ServerFailure(e.toString()));
     }
-
   }
-  
-
 }
