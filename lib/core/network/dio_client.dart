@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:nabd_client_app/core/localization/app_localization.dart';
 import 'package:nabd_client_app/core/network/app_interceptor.dart';
 import 'api_constants.dart';
 
@@ -10,7 +11,7 @@ class DioClient {
       receiveTimeout: const Duration(seconds: 10),
       headers: {
         "Content-Type": "application/json",
-        "Accept-Language": "en"
+        "Accept-Language": AppLocalization.currentLanguageCode
         //"Authorization"
       },
     ),
