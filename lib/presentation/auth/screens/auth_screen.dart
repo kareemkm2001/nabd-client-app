@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
-import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
 
 import '../../../../core/localization/app_localization.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../../core/widgets/country_picker.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/phone_text_field.dart';
-import 'otp_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   final AuthMode initialMode;
@@ -45,7 +42,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _cubit = context.read<AuthCubit>();
-    
+
     // Set initial values from widget parameters
     if (widget.initialMode != AuthMode.login) {
       _cubit.changeAuthMode(widget.initialMode);
@@ -84,21 +81,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     _entryController.forward();
   }
 
-  PageRouteBuilder<void> _buildRoute(Widget child) {
-    return PageRouteBuilder<void>(
-      pageBuilder: (_, __, ___) => child,
-      transitionsBuilder: (_, animation, __, page) => FadeTransition(
-        opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0.1, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: page,
-        ),
-      ),
-    );
-  }
 
   @override
   void dispose() {
@@ -122,26 +104,10 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               selection: TextSelection.collapsed(offset: state.phone.length),
             );
           }
-
-          if (state.isOtpSent) {
-            final fullPhone = state.fullPhoneNumber;
-            if (fullPhone == null) return;
-            if (_lastNavigatedFullPhone == fullPhone) return;
-            _lastNavigatedFullPhone = fullPhone;
-            
-            Navigator.of(context).push(
-              _buildRoute(
-                BlocProvider.value(
-                  value: _cubit,
-                  child: OtpScreen(phoneNumber: fullPhone),
-                ),
-              ),
-            );
-          }
         },
         child: BlocBuilder<AuthCubit, AuthState>(
           builder: (context, state) {
-            final isLoading = state.isLoading;
+            var isLoading = state.isLoading;
             final isSaudi = state.selectedCountry.dialCode == '+966';
             final String? inlineError = (state.errorMessage != null &&
                     state.errorMessage != state.phoneErrorMessage)
@@ -292,30 +258,32 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                   const SizedBox(height: 18),
                                   AppButton(
                                     onTap: () {
-                                      print("صفحة الشاشة");
-                                      context.read<AuthCubit>().requestOTO();
-                                      /*if(!isLoading){
-                                        if (state.mode == AuthMode.login) {
-                                          _cubit.login();
-                                        } else {
-                                          _cubit.register();
-                                        }
-                                      }*/
+                                      if (state.mode == AuthMode.login) {
+                                        context.read<AuthCubit>().requestOTO(context: context, mobile: _phoneController.text);
+                                        print("pحححححححححححححححححححححححح     ${_phoneController.text}");
+                                      } else {
+                                        print("التسجيل");
+                                      }
                                     },
                                     margin: 12,
-                                    child: isLoading
-                                        ? const SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: AppColors.surface
-                                            ),
-                                          )
-                                        : AppText(
+                                    child: BlocBuilder<AuthCubit,AuthState>(
+                                        builder: (context , state){
+                                          if(state is RequestOTPLoading ){
+                                            return const SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: AppColors.surface
+                                              ),
+                                            );
+                                          }
+                                          return AppText(
                                               jsonKey: state.mode == AuthMode.login ? 'send_code' : 'create_account',
                                               textStyle: AppTextStyles.mediumWhite,
-                                        ),
+                                          );
+                                        }
+                                    )
                                   )
                                 ],
                               ),
@@ -335,6 +303,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     );
   }
 }
+
 
 class AuthToggle extends StatelessWidget {
   final AuthMode mode;

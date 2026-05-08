@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nabd_client_app/core/services/language_service.dart';
+import 'package:nabd_client_app/core/services/token_service.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
+import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/core/widgets/app_text_field.dart';
+import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
+import 'package:nabd_client_app/presentation/splash/splash_screen.dart';
 
 import '../../../../core/localization/app_localization.dart';
 import '../../language/cubits/language/language_cubit.dart';
@@ -51,15 +56,30 @@ class HomeScreen extends StatelessWidget {
                     );
                   },
                 ),
+                ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: Text(AppLocalization.t('logout')),
+                  onTap: () async {
+                    TokenService.clearToken().whenComplete((){
+                      Navigator.of(context).pop();
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          AppRouteAnimation(page: AuthScreen()),
+                              (route) => false
+                      );
+                    });
+                  },
+                ),
               ],
             ),
           ),
-          body: Column(
+          body: Column (
             children: [
-
               AppButton(
                 titleKey: "send_otp",
-                onTap: (){},
+                onTap: (){
+
+                },
                 margin: 50,
               )
             ],

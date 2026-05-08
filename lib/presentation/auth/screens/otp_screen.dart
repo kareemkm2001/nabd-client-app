@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:nabd_client_app/core/localization/app_localization.dart';
+import 'package:nabd_client_app/core/services/token_service.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
+import 'package:nabd_client_app/domain/models/auth/verify_Otp_request_model.dart';
+import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
 
 import '../../home/screens/home_screen.dart';
 
@@ -27,39 +31,6 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  bool _isOtpValid(String value) {
-    return RegExp(r'^\d{4}$').hasMatch(value);
-  }
-
-  void _verifyCode() {
-    if (_isOtpValid(_otpCode)) {
-      setState(() {
-        _errorText = null;
-      });
-      Navigator.of(context).pushAndRemoveUntil(
-        PageRouteBuilder<void>(
-          pageBuilder: (_, __, ___) => HomeScreen(),
-          transitionsBuilder: (_, animation, __, page) => FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.1, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: page,
-            ),
-          ),
-        ),
-        (_) => false,
-      );
-      return;
-    }
-
-    setState(() {
-      _errorText = AppLocalization.t('otp_validation');
-    });
   }
 
   @override
@@ -177,7 +148,12 @@ class _OtpScreenState extends State<OtpScreen> {
                       ],
                       const SizedBox(height: 18),
                       AppButton(
-                        onTap: _verifyCode,
+                        onTap: (){
+                          context.read<AuthCubit>.call().login(
+                              context: context,
+                              verifyOtpRequestModel: VerifyOtpRequestModel(mobile: widget.phoneNumber, otp: _otpCode)
+                          );
+                        },
                         margin: 12,
                         titleKey: 'verify',
                       ),

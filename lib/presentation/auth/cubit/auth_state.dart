@@ -69,3 +69,15 @@ class AuthState {
     );
   }
 }
+
+class RequestOTPLoading extends AuthState {}
+
+class RequestOTPError extends AuthState {
+  final String errorMsg ;
+  RequestOTPError({required this.errorMsg});
+}
+
+class RequestOtpSuc extends AuthState {
+  final String sucMsg ;
+  RequestOtpSuc({required this.sucMsg});
+}

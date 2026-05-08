@@ -1,8 +1,15 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/localization/app_localization.dart';
-import 'package:nabd_client_app/core/services/auth_service.dart';
+import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
+import 'package:nabd_client_app/core/widgets/app_snack_bar.dart';
 import 'package:nabd_client_app/core/widgets/country_picker.dart';
 import 'package:nabd_client_app/domain/models/auth/request_OTP_model.dart';
+import 'package:nabd_client_app/domain/models/auth/verify_Otp_request_model.dart';
+import 'package:nabd_client_app/presentation/auth/screens/otp_screen.dart';
+import 'package:nabd_client_app/presentation/home/screens/home_screen.dart';
 import '../../../domain/usecases/auth_use_case.dart';
 import 'auth_state.dart';
 
@@ -18,7 +25,7 @@ class AuthCubit extends Cubit<AuthState> {
     _hasEditedPhone = true;
     final normalized = _normalizePhoneInput(value);
     final phoneError = _validatePhone(normalized);
-    
+
     emit(state.copyWith(
       phone: normalized,
       phoneErrorMessage: phoneError,
@@ -62,16 +69,6 @@ class AuthCubit extends Cubit<AuthState> {
     ));
   }
 
-  Future<void> login() async {
-    final phoneError = _validatePhone(state.phone);
-
-    if (phoneError != null) {
-      emit(state.copyWith(phoneErrorMessage: phoneError, errorMessage: phoneError));
-      return;
-    }
-
-    await _sendOtp();
-  }
 
   Future<void> register() async {
     final phoneError = _validatePhone(state.phone);
@@ -117,9 +114,9 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> _sendOtp() async {
     final fullPhone = _buildFullPhoneNumber(state.phone);
     emit(state.copyWith(
-      isLoading: true, 
-      errorMessage: null, 
-      fullPhoneNumber: fullPhone, 
+      isLoading: true,
+      errorMessage: null,
+      fullPhoneNumber: fullPhone,
       isOtpSent: false,
     ));
 
@@ -172,12 +169,50 @@ class AuthCubit extends Cubit<AuthState> {
     return null;
   }
 
-  void requestOTO() async {
-    print("صفحة الكيوبت");
-    final result = await authUseCase.requestOTP(RequestOtpModel(mobile: "530572149"));
+  void requestOTO({required BuildContext context , required String mobile}) async {
+    emit(RequestOTPLoading());
+    final result = await authUseCase.requestOTP(RequestOtpModel(mobile: mobile));
     result.fold(
-            (l) => print(l.message),
-            (r) => print(r.toJson())
+            (l) {
+              emit(RequestOTPError(errorMsg: l.message));
+              showAppSnackBar(
+                  context: context,
+                  title: "Error",
+                  message: l.message,
+                  type: ContentType.failure
+              );
+            },
+            (r) {
+              emit(RequestOtpSuc(sucMsg: r.message ?? ""));
+              showAppSnackBar(
+                  context: context,
+                  title: "تم",
+                  message: r.message ?? ""
+              );
+              Navigator.push(context, AppRouteAnimation(page: OtpScreen(phoneNumber: mobile)));
+            }
+    );
+  }
+
+  void login({required BuildContext context , required VerifyOtpRequestModel verifyOtpRequestModel}) async {
+    final result = await authUseCase.login(verifyOtpRequestModel);
+    
+    result.fold(
+        (l){
+          showAppSnackBar(
+              context: context,
+              title: "Error",
+              message: l.message,
+              type: ContentType.failure
+          );
+        }, (r){
+      showAppSnackBar(
+          context: context,
+          title: "تم",
+          message: r.message ?? ""
+      );
+      Navigator.push(context, AppRouteAnimation(page: HomeScreen()));
+        }
     );
   }
 

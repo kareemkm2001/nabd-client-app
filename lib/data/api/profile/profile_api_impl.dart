@@ -6,7 +6,7 @@ import 'package:nabd_client_app/core/error/server_failure.dart';
 import 'package:nabd_client_app/core/network/api_constants.dart';
 import 'package:nabd_client_app/core/network/api_service.dart';
 import 'package:nabd_client_app/data/api/profile/profile_api.dart';
-
+/*
 class ProfileApiImpl implements ProfileApi {
 
   ApiService api ;
@@ -29,4 +29,4 @@ class ProfileApiImpl implements ProfileApi {
   }
 
 
-}
+}*/
