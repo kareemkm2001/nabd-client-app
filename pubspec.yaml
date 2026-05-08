@@ -45,6 +45,7 @@ dependencies:
   dartz: ^0.10.1
   get_it: ^9.2.1
   awesome_snackbar_content: ^0.1.8
+  flutter_advanced_drawer: ^1.5.0
 
 
 dev_dependencies:

@@ -4,6 +4,7 @@ import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
+import 'package:nabd_client_app/domain/models/auth/register_request_model.dart';
 
 import '../../../../core/localization/app_localization.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -260,9 +261,18 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                     onTap: () {
                                       if (state.mode == AuthMode.login) {
                                         context.read<AuthCubit>().requestOTO(context: context, mobile: _phoneController.text);
-                                        print("pحححححححححححححححححححححححح     ${_phoneController.text}");
+
                                       } else {
-                                        print("التسجيل");
+                                        context.read<AuthCubit>().register(
+                                            context: context,
+                                            registerRequestModel: RegisterRequestModel(
+                                                firstName: _firstNameController.text,
+                                                lastName: _lastNameController.text,
+                                                mobile: _phoneController.text,
+                                                contryCode: state.selectedCountry.dialCode.substring(1),
+                                                termsConditions: "0"
+                                            )
+                                        );
                                       }
                                     },
                                     margin: 12,

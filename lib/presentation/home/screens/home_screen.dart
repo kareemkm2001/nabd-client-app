@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/services/language_service.dart';
 import 'package:nabd_client_app/core/services/token_service.dart';
+import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/core/widgets/app_text_field.dart';
+import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
 import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
 import 'package:nabd_client_app/presentation/splash/splash_screen.dart';
 
@@ -20,70 +23,94 @@ class HomeScreen extends StatelessWidget {
    final passwordController = TextEditingController();
    final formKey = GlobalKey<FormState>();
 
+   final _advancedDrawerController = AdvancedDrawerController();
+
+   void _handleMenuButtonPressed() {
+     _advancedDrawerController.showDrawer();
+   }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LanguageCubit, LanguageState>(
       builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(AppLocalization.t('home')),
-          ),
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
+        return AdvancedDrawer(
+          backdropColor: AppColors.primary,
+            drawer: SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: 50),
+
+                  const CircleAvatar(
+                    radius: 40,
+                    child: Icon(Icons.person),
                   ),
-                  child: Align(
-                    alignment: AlignmentDirectional.bottomStart,
-                    child: Text(
-                      AppLocalization.t('app_name'),
-                      style: Theme.of(context).textTheme.titleLarge,
+
+                  const SizedBox(height: 20),
+
+                  ListTile(
+                    leading: const Icon(Icons.home),
+                    title: const Text("Home"),
+                    onTap: () {},
+                  ),
+
+                  ListTile(
+                    leading: const Icon(Icons.calendar_month),
+                    title: const Text("Appointments"),
+                    onTap: () {},
+                  ),
+
+                  ListTile(
+                    leading: const Icon(Icons.settings),
+                    title: const Text("Settings"),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          AppRouteAnimation(page: SettingsScreen())
+                      );
+                    },
+                  ),
+                  Spacer(),
+                  ListTile(
+                    leading: const Icon(Icons.calendar_month),
+                    title: const Text("Logout"),
+                    onTap: () {
+                      context.read<AuthCubit>().logout(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            child: Scaffold(
+                appBar: AppBar(
+                  leading: IconButton(
+                    onPressed: _handleMenuButtonPressed,
+                    icon: ValueListenableBuilder<AdvancedDrawerValue>(
+                      valueListenable: _advancedDrawerController,
+                      builder: (_, value, __) {
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          child: Icon(
+                            value.visible ? Icons.clear : Icons.menu,
+                            key: ValueKey(value.visible),
+                          ),
+                        );
+                      },
                     ),
                   ),
+                  title: const Text("MindCare"),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.settings),
-                  title: Text(AppLocalization.t('settings')),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const SettingsScreen(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: Text(AppLocalization.t('logout')),
-                  onTap: () async {
-                    TokenService.clearToken().whenComplete((){
-                      Navigator.of(context).pop();
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          AppRouteAnimation(page: AuthScreen()),
-                              (route) => false
-                      );
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-          body: Column (
-            children: [
-              AppButton(
-                titleKey: "send_otp",
-                onTap: (){
+                body: Column (
+                  children: [
+                    AppButton(
+                      titleKey: "send_otp",
+                      onTap: (){
 
-                },
-                margin: 50,
-              )
-            ],
-          )
+                      },
+                      margin: 50,
+                    )
+                  ],
+                )
+            )
         );
       },
     );

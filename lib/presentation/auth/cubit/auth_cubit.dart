@@ -3,11 +3,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/localization/app_localization.dart';
+import 'package:nabd_client_app/core/services/token_service.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/core/widgets/app_snack_bar.dart';
 import 'package:nabd_client_app/core/widgets/country_picker.dart';
+import 'package:nabd_client_app/domain/models/auth/register_request_model.dart';
 import 'package:nabd_client_app/domain/models/auth/request_OTP_model.dart';
 import 'package:nabd_client_app/domain/models/auth/verify_Otp_request_model.dart';
+import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
 import 'package:nabd_client_app/presentation/auth/screens/otp_screen.dart';
 import 'package:nabd_client_app/presentation/home/screens/home_screen.dart';
 import '../../../domain/usecases/auth_use_case.dart';
@@ -67,29 +70,6 @@ class AuthCubit extends Cubit<AuthState> {
       errorMessage: null,
       phoneErrorMessage: _hasEditedPhone ? state.phoneErrorMessage : null,
     ));
-  }
-
-
-  Future<void> register() async {
-    final phoneError = _validatePhone(state.phone);
-    if (phoneError != null) {
-      emit(state.copyWith(phoneErrorMessage: phoneError, errorMessage: phoneError));
-      return;
-    }
-
-    if (state.firstName.isEmpty || state.lastName.isEmpty) {
-      emit(state.copyWith(errorMessage: AppLocalization.t('name_required')));
-      return;
-    }
-
-    final fullPhone = _buildFullPhoneNumber(state.phone);
-    emit(state.copyWith(isLoading: true, errorMessage: null, fullPhoneNumber: fullPhone));
-
-
-
-    if (isClosed) return;
-
-
   }
 
   Future<void> verifyOtp() async {
@@ -189,7 +169,7 @@ class AuthCubit extends Cubit<AuthState> {
                   title: "تم",
                   message: r.message ?? ""
               );
-              Navigator.push(context, AppRouteAnimation(page: OtpScreen(phoneNumber: mobile)));
+              Navigator.push(context, AppRouteAnimation(page: OtpScreen(phoneNumber: "+${state.selectedCountry.dialCode.substring(1)}$mobile")));
             }
     );
   }
@@ -213,6 +193,39 @@ class AuthCubit extends Cubit<AuthState> {
       );
       Navigator.push(context, AppRouteAnimation(page: HomeScreen()));
         }
+    );
+  }
+
+  void register({required BuildContext context , required RegisterRequestModel registerRequestModel} ) async {
+
+    final result = await authUseCase.register(registerRequestModel);
+
+    result.fold(
+        (l){
+          showAppSnackBar(
+              context: context,
+              title: "خطا",
+              message: l.message,
+            type: ContentType.failure
+          );
+        },
+        (r){
+          showAppSnackBar(
+              context: context,
+              title: "تم",
+              message: r.message ?? ""
+          );
+          requestOTO(context: context, mobile: registerRequestModel.mobile);
+        }
+    );
+  }
+
+  void logout(BuildContext context) async {
+    TokenService.clearToken();
+    Navigator.pushAndRemoveUntil(
+        context,
+        AppRouteAnimation(page: AuthScreen()),
+        (route) => false
     );
   }
 

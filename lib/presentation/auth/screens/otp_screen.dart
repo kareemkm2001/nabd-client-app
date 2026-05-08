@@ -8,6 +8,7 @@ import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/domain/models/auth/verify_Otp_request_model.dart';
 import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
+import 'package:nabd_client_app/presentation/auth/widgets/resend_timer.dart';
 
 import '../../home/screens/home_screen.dart';
 
@@ -132,6 +133,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           },
                         ),
                       ),
+                      ResendTimerWidget(),
                       if (_errorText != null) ...[
                         const SizedBox(height: 8),
                         Padding(
