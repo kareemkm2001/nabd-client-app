@@ -12,7 +12,7 @@ class DioClient {
       receiveTimeout: const Duration(seconds: 10),
       headers: {
         "Content-Type": "application/json",
-        "Accept-Language": AppLocalization.currentLanguageCode,
+        "Accept-Language": "ar"  /*بسبب en مش بيبعت رسايل*//*AppLocalization.currentLanguageCode*/,
       },
     ),
   )..interceptors.add(AppInterceptor());

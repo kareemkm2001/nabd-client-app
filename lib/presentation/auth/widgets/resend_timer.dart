@@ -70,8 +70,7 @@ class _ResendTimerWidgetState extends State<ResendTimerWidget> {
           minimumSize: const Size(double.infinity, 50),
         ),
         child: const Text("إعادة إرسال"),
-      )
-          : Text(
+      ) : Text(
         key: const ValueKey("timer"),
         timerText,
         style: const TextStyle(

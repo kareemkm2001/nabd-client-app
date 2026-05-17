@@ -1,11 +1,9 @@
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/localization/app_localization.dart';
 import 'package:nabd_client_app/core/services/token_service.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
-import 'package:nabd_client_app/core/widgets/app_snack_bar.dart';
 import 'package:nabd_client_app/core/widgets/country_picker.dart';
 import 'package:nabd_client_app/domain/models/auth/register_request_model.dart';
 import 'package:nabd_client_app/domain/models/auth/request_OTP_model.dart';
@@ -13,6 +11,7 @@ import 'package:nabd_client_app/domain/models/auth/verify_Otp_request_model.dart
 import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
 import 'package:nabd_client_app/presentation/auth/screens/otp_screen.dart';
 import 'package:nabd_client_app/presentation/home/screens/home_screen.dart';
+import '../../../core/widgets/top_snackbar.dart';
 import '../../../domain/usecases/auth_use_case.dart';
 import 'auth_state.dart';
 
@@ -155,21 +154,18 @@ class AuthCubit extends Cubit<AuthState> {
     result.fold(
             (l) {
               emit(RequestOTPError(errorMsg: l.message));
-              showAppSnackBar(
+              showAppSnackBarError(
                   context: context,
-                  title: "Error",
-                  message: l.message,
-                  type: ContentType.failure
+                  message: l.message
               );
             },
             (r) {
               emit(RequestOtpSuc(sucMsg: r.message ?? ""));
-              showAppSnackBar(
+              showAppSnackBarSuc(
                   context: context,
-                  title: "تم",
                   message: r.message ?? ""
               );
-              Navigator.push(context, AppRouteAnimation(page: OtpScreen(phoneNumber: "+${state.selectedCountry.dialCode.substring(1)}$mobile")));
+              Navigator.push(context, AppRouteAnimation(page: OtpScreen(phoneNumber: mobile)));
             }
     );
   }
@@ -179,16 +175,13 @@ class AuthCubit extends Cubit<AuthState> {
     
     result.fold(
         (l){
-          showAppSnackBar(
+          showAppSnackBarError(
               context: context,
-              title: "Error",
-              message: l.message,
-              type: ContentType.failure
+              message: l.message
           );
         }, (r){
-      showAppSnackBar(
+      showAppSnackBarSuc(
           context: context,
-          title: "تم",
           message: r.message ?? ""
       );
       Navigator.push(context, AppRouteAnimation(page: HomeScreen()));
@@ -202,17 +195,14 @@ class AuthCubit extends Cubit<AuthState> {
 
     result.fold(
         (l){
-          showAppSnackBar(
+          showAppSnackBarError(
               context: context,
-              title: "خطا",
-              message: l.message,
-            type: ContentType.failure
+              message: l.message
           );
         },
         (r){
-          showAppSnackBar(
+          showAppSnackBarSuc(
               context: context,
-              title: "تم",
               message: r.message ?? ""
           );
           requestOTO(context: context, mobile: registerRequestModel.mobile);

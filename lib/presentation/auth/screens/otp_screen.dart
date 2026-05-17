@@ -133,7 +133,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           },
                         ),
                       ),
-                      ResendTimerWidget(),
+                      //ResendTimerWidget(),
                       if (_errorText != null) ...[
                         const SizedBox(height: 8),
                         Padding(
@@ -151,7 +151,9 @@ class _OtpScreenState extends State<OtpScreen> {
                       const SizedBox(height: 18),
                       AppButton(
                         onTap: (){
-                          context.read<AuthCubit>.call().login(
+                          print("ضغط login");
+                          print("    ${widget.phoneNumber}$_otpCodeضغط login");
+                          context.read<AuthCubit>().login(
                               context: context,
                               verifyOtpRequestModel: VerifyOtpRequestModel(mobile: widget.phoneNumber, otp: _otpCode)
                           );

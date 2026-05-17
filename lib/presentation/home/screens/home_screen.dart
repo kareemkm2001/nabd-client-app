@@ -1,118 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nabd_client_app/core/services/language_service.dart';
-import 'package:nabd_client_app/core/services/token_service.dart';
-import 'package:nabd_client_app/core/theme/app_colors.dart';
+import 'package:nabd_client_app/core/theme/app_text_styles.dart';
+import 'package:nabd_client_app/core/utils/get_greeting.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
-import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
-import 'package:nabd_client_app/core/widgets/app_text_field.dart';
-import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
-import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
-import 'package:nabd_client_app/presentation/splash/splash_screen.dart';
+import 'package:nabd_client_app/core/widgets/app_text.dart';
+import 'package:nabd_client_app/core/widgets/app_drawer.dart';
+import 'package:nabd_client_app/presentation/home/widgets/appointment_booking_widget.dart';
+import 'package:nabd_client_app/presentation/home/widgets/subscription_booking_widget.dart';
 
 import '../../../../core/localization/app_localization.dart';
-import '../../language/cubits/language/language_cubit.dart';
-import '../../language/cubits/language/language_state.dart';
-import '../../settings/settings_screen.dart';
-
+import '../../../core/theme/app_colors.dart';
 class HomeScreen extends StatelessWidget {
-   HomeScreen({super.key});
+  HomeScreen({super.key});
 
-  final phoneController = TextEditingController();
-   final passwordController = TextEditingController();
-   final formKey = GlobalKey<FormState>();
+   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-   final _advancedDrawerController = AdvancedDrawerController();
 
-   void _handleMenuButtonPressed() {
-     _advancedDrawerController.showDrawer();
-   }
-
-  @override
+   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LanguageCubit, LanguageState>(
-      builder: (context, state) {
-        return AdvancedDrawer(
-          backdropColor: AppColors.primary,
-            drawer: SafeArea(
-              child: Column(
-                children: [
-                  const SizedBox(height: 50),
-
-                  const CircleAvatar(
-                    radius: 40,
-                    child: Icon(Icons.person),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  ListTile(
-                    leading: const Icon(Icons.home),
-                    title: const Text("Home"),
-                    onTap: () {},
-                  ),
-
-                  ListTile(
-                    leading: const Icon(Icons.calendar_month),
-                    title: const Text("Appointments"),
-                    onTap: () {},
-                  ),
-
-                  ListTile(
-                    leading: const Icon(Icons.settings),
-                    title: const Text("Settings"),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          AppRouteAnimation(page: SettingsScreen())
-                      );
-                    },
-                  ),
-                  Spacer(),
-                  ListTile(
-                    leading: const Icon(Icons.calendar_month),
-                    title: const Text("Logout"),
-                    onTap: () {
-                      context.read<AuthCubit>().logout(context);
-                    },
-                  ),
-                ],
-              ),
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: AppText(
+            jsonKey: "${getGreeting()}, كريم",
+          textStyle: AppTextStyles.mediumBoldPrimary,
+        ),
+        leading: GestureDetector(
+          onTap: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              backgroundImage: AssetImage("assets/images/profile.png"),
             ),
-            child: Scaffold(
-                appBar: AppBar(
-                  leading: IconButton(
-                    onPressed: _handleMenuButtonPressed,
-                    icon: ValueListenableBuilder<AdvancedDrawerValue>(
-                      valueListenable: _advancedDrawerController,
-                      builder: (_, value, __) {
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 250),
-                          child: Icon(
-                            value.visible ? Icons.clear : Icons.menu,
-                            key: ValueKey(value.visible),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  title: const Text("MindCare"),
-                ),
-                body: Column (
-                  children: [
-                    AppButton(
-                      titleKey: "send_otp",
-                      onTap: (){
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: IconButton(
+                onPressed: (){
 
-                      },
-                      margin: 50,
-                    )
-                  ],
-                )
-            )
-        );
-      },
+                },
+                icon: Icon(
+                  Icons.notifications,
+                  color: AppColors.primary,
+                ),
+            ),
+          )
+        ],
+      ),
+      drawer: AppDrawer(),
+      body: Column (
+        children: [
+          AppointmentBookingWidget(),
+          SizedBox(height: 10,),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                AppText(
+                    jsonKey: "المواعيد القادمة",
+                    textStyle: AppTextStyles.mediumPrimary,
+                ),
+                Spacer(),
+                GestureDetector(
+                  onTap: (){
+
+                  },
+                  child: AppText(
+                    jsonKey: "عرض الكل",
+                    textStyle: AppTextStyles.smallPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 200,),
+          SizedBox(height: 10,),
+          SubscriptionBookingWidget(),
+          SizedBox(),
+        ],
+      )
     );
   }
 }
