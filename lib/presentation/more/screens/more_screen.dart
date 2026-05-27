@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
+import 'package:nabd_client_app/presentation/invoices/screens/invoice_screen.dart';
 
 import '../../../../core/localization/app_localization.dart';
 import '../../../../core/services/token_service.dart';
 import '../../../../core/widgets/app_route_animation.dart';
-import '../../../settings/settings_screen.dart';
-import '../../../splash/splash_screen.dart';
+import '../../../core/helper/avatar_helper.dart';
+import '../../settings/settings_screen.dart';
 import '../widgets/more_menu_item.dart';
 
 class MoreScreen extends StatelessWidget {
@@ -39,10 +40,10 @@ class MoreScreen extends StatelessWidget {
                         width: 3,
                       ),
                     ),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 55,
                       backgroundImage: NetworkImage(
-                        "https://i.pravatar.cc/300",
+                        AvatarHelper.getAvatar('hijab', '123'),
                       ),
                     ),
                   ),
@@ -92,7 +93,14 @@ class MoreScreen extends StatelessWidget {
                     icon: Icons.receipt_long,
                     title: AppLocalization.t('الفواتير'),
                     color: Colors.purple,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => InvoiceScreen(),
+                        ),
+                      );
+                    },
                   ),
 
                   MoreMenuItem(

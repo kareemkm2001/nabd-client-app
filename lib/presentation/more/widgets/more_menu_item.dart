@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 
 class MoreMenuItem extends StatelessWidget {
@@ -24,11 +25,12 @@ class MoreMenuItem extends StatelessWidget {
         color: Colors.white,
         child: InkWell(
           borderRadius: BorderRadius.circular(15),
+          splashColor: color.withValues(alpha: 0.2),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 14,
+              horizontal: 12,
+              vertical: 12,
             ),
             child: Row(
               children: [

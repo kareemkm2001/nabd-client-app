@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
+import 'package:nabd_client_app/presentation/invoices/cubits/invoices_cubit.dart';
 import 'package:nabd_client_app/presentation/language/cubits/language/language_cubit.dart';
 import 'package:nabd_client_app/presentation/language/cubits/language/language_state.dart';
 import 'package:nabd_client_app/presentation/splash/splash_screen.dart';
@@ -20,7 +21,8 @@ void main() async {
       child: MultiBlocProvider(
         providers: [
           BlocProvider<LanguageCubit>(create: (_) => sl<LanguageCubit>()..init(),),
-          BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>(),)
+          BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>(),),
+          BlocProvider<InvoicesCubit>(create: (_) => sl<InvoicesCubit>(),),
         ],
         child: const MyApp(),
       ),

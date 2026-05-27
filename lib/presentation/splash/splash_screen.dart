@@ -6,7 +6,7 @@ import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
-import 'package:nabd_client_app/presentation/main/main_screen.dart';
+import 'package:nabd_client_app/presentation/main_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {

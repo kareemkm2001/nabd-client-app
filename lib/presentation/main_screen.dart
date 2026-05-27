@@ -7,6 +7,7 @@ import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'home/screens/home_screen.dart';
 import 'more/screens/more_screen.dart';
 
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 

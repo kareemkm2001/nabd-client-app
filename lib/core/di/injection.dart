@@ -1,6 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:nabd_client_app/core/network/dio_client.dart';
+import 'package:nabd_client_app/data/api/invoice/invoice_api.dart';
+import 'package:nabd_client_app/data/api/invoice/invoice_api_impl.dart';
+import 'package:nabd_client_app/domain/usecases/invoice_use_case.dart';
+import 'package:nabd_client_app/presentation/invoices/cubits/invoices_cubit.dart';
 import 'package:nabd_client_app/presentation/language/cubits/language/language_cubit.dart';
 
 import '../../data/api/auth/auth_api.dart';
@@ -28,6 +32,13 @@ Future<void> setupLocator() async {
 
   /* ================= LANGUAGE ================= */
   sl.registerFactory<LanguageCubit>(() => LanguageCubit());
+
+
+  /* ================= INVOICE ================= */
+  sl.registerLazySingleton<InvoiceApi>(() => InvoiceApiImpl(api: sl<ApiService>()));
+  sl.registerLazySingleton<InvoiceUseCase>(() => InvoiceUseCase(invoiceApi: sl<InvoiceApi>()));
+  sl.registerFactory<InvoicesCubit>(() => InvoicesCubit(invoiceUseCase: sl<InvoiceUseCase>()));
+
 
 
 

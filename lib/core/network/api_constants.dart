@@ -6,4 +6,6 @@ class ApiConstants {
   static const String register = "api/v1/auth/register";
   static const String resendVerifyCode = "api/v1/auth/resend-verify-code/";
   static const String products = "products";
+
+  static const String invoices = "api/v1/invoices";
 }
