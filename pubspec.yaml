@@ -45,6 +45,7 @@ dependencies:
   dartz: ^0.10.1
   get_it: ^9.2.1
   top_snackbar_flutter: ^3.3.0
+  salomon_bottom_bar: ^3.3.2
 
 dev_dependencies:
   flutter_test:

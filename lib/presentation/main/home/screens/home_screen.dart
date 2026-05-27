@@ -1,39 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/utils/get_greeting.dart';
-import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
-import 'package:nabd_client_app/core/widgets/app_drawer.dart';
-import 'package:nabd_client_app/presentation/home/widgets/appointment_booking_widget.dart';
-import 'package:nabd_client_app/presentation/home/widgets/subscription_booking_widget.dart';
 
 import '../../../../core/localization/app_localization.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../widgets/appointment_booking_widget.dart';
+import '../widgets/subscription_booking_widget.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
-
-   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 
    @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: AppText(
             jsonKey: "${getGreeting()}, كريم",
           textStyle: AppTextStyles.mediumBoldPrimary,
         ),
-        leading: GestureDetector(
-          onTap: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundImage: AssetImage("assets/images/profile.png"),
-            ),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CircleAvatar(
+            backgroundImage: AssetImage("assets/images/profile.png"),
           ),
         ),
         actions: [
@@ -51,7 +41,6 @@ class HomeScreen extends StatelessWidget {
           )
         ],
       ),
-      drawer: AppDrawer(),
       body: Column (
         children: [
           AppointmentBookingWidget(),

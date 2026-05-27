@@ -10,9 +10,9 @@ import 'package:nabd_client_app/domain/models/auth/request_OTP_model.dart';
 import 'package:nabd_client_app/domain/models/auth/verify_Otp_request_model.dart';
 import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
 import 'package:nabd_client_app/presentation/auth/screens/otp_screen.dart';
-import 'package:nabd_client_app/presentation/home/screens/home_screen.dart';
 import '../../../core/widgets/top_snackbar.dart';
 import '../../../domain/usecases/auth_use_case.dart';
+import '../../main/home/screens/home_screen.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {

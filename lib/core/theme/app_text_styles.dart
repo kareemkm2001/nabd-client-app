@@ -110,6 +110,8 @@ class AppTextStyles {
     fontSize: 16,
     fontWeight: FontWeight.normal,
     color: AppColors.primary,
+    fontFamily: 'Cairo'
+
   );
 
   static TextStyle mediumBlack = TextStyle(
@@ -166,6 +168,13 @@ class AppTextStyles {
       fontFamily: 'Cairo'
   );
 
+  static TextStyle smallBoldSecondary = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: AppColors.secondary,
+      fontFamily: 'Cairo'
+  );
+
   static TextStyle smallBlack = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.normal,
@@ -188,6 +197,8 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.bold,
     color: AppColors.primary,
+      fontFamily: 'Cairo'
+
   );
 
   static TextStyle smallBoldBlack = TextStyle(
@@ -206,5 +217,22 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.bold,
     color: AppColors.surface,
+  );
+
+  static TextStyle smallBoldWarning = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: AppColors.warning,
+      fontFamily: 'Cairo'
+
+  );
+
+
+  static TextStyle smallBoldPremium = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: AppColors.premium,
+      fontFamily: 'Cairo'
+
   );
 }

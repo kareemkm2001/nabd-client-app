@@ -10,8 +10,6 @@ import 'package:nabd_client_app/domain/models/auth/verify_Otp_request_model.dart
 import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
 import 'package:nabd_client_app/presentation/auth/widgets/resend_timer.dart';
 
-import '../../home/screens/home_screen.dart';
-
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
 
