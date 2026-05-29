@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
+import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
+import 'package:nabd_client_app/presentation/subscriptions/screens/subscriptions_screen.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import 'home/screens/home_screen.dart';
-import 'more/screens/more_screen.dart';
+import 'profile/screens/profile_screen.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -17,6 +20,14 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
 
+
+  @override
+  void initState() {
+    context.read<SubscriptionsCubit>().getSubscriptions();
+    super.initState();
+  }
+
+
   int currentIndex = 0;
 
   final List<Widget> screens = [
@@ -25,9 +36,9 @@ class _MainScreenState extends State<MainScreen> {
 
     const LikesScreen(),
 
-    const SearchScreen(),
+    SubscriptionsScreen(),
 
-    MoreScreen(),
+    ProfileScreen(),
 
   ];
 
@@ -132,7 +143,7 @@ class _MainScreenState extends State<MainScreen> {
               icon: const Icon(Icons.receipt_long),
 
               title: AppText(
-                jsonKey: "الطلبات",
+                jsonKey: "الاشتراكات",
                 textStyle: AppTextStyles.smallBoldPremium,
               ),
 
@@ -143,7 +154,7 @@ class _MainScreenState extends State<MainScreen> {
               icon: const Icon(Icons.menu),
 
               title: AppText(
-                jsonKey: "المزيد",
+                jsonKey: "الحساب",
                 textStyle: AppTextStyles.smallBoldWarning,
               ),
               selectedColor: AppColors.warning,

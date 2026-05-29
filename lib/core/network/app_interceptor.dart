@@ -3,12 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:nabd_client_app/core/services/token_service.dart';
 
 class AppInterceptor extends Interceptor {
+
+  final Dio dio ;
+
+  AppInterceptor({required this.dio});
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
 
     // add token
     final token = await TokenService.getToken();
     if(token != null){
+
       options.headers["Authorization"] = "Bearer $token" ;
     }
 

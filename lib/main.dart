@@ -6,6 +6,7 @@ import 'package:nabd_client_app/presentation/invoices/cubits/invoices_cubit.dart
 import 'package:nabd_client_app/presentation/language/cubits/language/language_cubit.dart';
 import 'package:nabd_client_app/presentation/language/cubits/language/language_state.dart';
 import 'package:nabd_client_app/presentation/splash/splash_screen.dart';
+import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
 
 import 'core/di/injection.dart';
 import 'core/utils/restart_widget.dart';
@@ -23,6 +24,7 @@ void main() async {
           BlocProvider<LanguageCubit>(create: (_) => sl<LanguageCubit>()..init(),),
           BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>(),),
           BlocProvider<InvoicesCubit>(create: (_) => sl<InvoicesCubit>(),),
+          BlocProvider<SubscriptionsCubit>(create: (_) => sl<SubscriptionsCubit>(),),
         ],
         child: const MyApp(),
       ),

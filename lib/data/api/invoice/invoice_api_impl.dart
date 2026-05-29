@@ -22,18 +22,17 @@ class InvoiceApiImpl  implements InvoiceApi {
 
       final response = await api.get(ApiConstants.invoices);
 
+
       final List<dynamic> dataList = response.data['data']['data'];
 
       final List<InvoiceModel> invoices = dataList
           .map<InvoiceModel>((e) => InvoiceModel.fromJson(e))
           .toList();
 
-      print("النتيجة ${invoices.length}");
-
       return Right(invoices);
 
     }on DioException catch (e){
-      print("مممممممممممممممم ${e.error}");
+      print("مممممممممممممممم ${e.message}");
       return Left(ErrorHandler.handle(e));
     }catch (e){
       print("،ننننننننننننن    ${e}");

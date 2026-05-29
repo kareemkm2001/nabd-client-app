@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
+import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
 import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
 import 'package:nabd_client_app/presentation/invoices/screens/invoice_screen.dart';
+import 'package:nabd_client_app/presentation/terms_and_conditions/terms_page.dart';
 
 import '../../../../core/localization/app_localization.dart';
 import '../../../../core/services/token_service.dart';
 import '../../../../core/widgets/app_route_animation.dart';
 import '../../../core/helper/avatar_helper.dart';
 import '../../settings/settings_screen.dart';
-import '../widgets/more_menu_item.dart';
+import '../widgets/profile_menu_item.dart';
 
-class MoreScreen extends StatelessWidget {
-  const MoreScreen({super.key});
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppAppBar(titleKey: "الحساب",isHome: true,),
 
       backgroundColor: AppColors.background,
 
@@ -103,7 +106,7 @@ class MoreScreen extends StatelessWidget {
                     },
                   ),
 
-                  MoreMenuItem(
+                  /*MoreMenuItem(
                     icon: Icons.settings,
                     title: AppLocalization.t('الإعدادات'),
                     color: Colors.grey,
@@ -113,6 +116,18 @@ class MoreScreen extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (_) => const SettingsScreen(),
                         ),
+                      );
+                    },
+                  ),*/
+
+                  MoreMenuItem(
+                    icon: Icons.logout,
+                    title: "الشروط والاحكام",
+                    color: AppColors.warning,
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        AppRouteAnimation(page: const TermsPage()),
                       );
                     },
                   ),
