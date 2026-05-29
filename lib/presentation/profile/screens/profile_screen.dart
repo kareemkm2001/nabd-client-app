@@ -30,43 +30,75 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            Center(
-              child: Column(
-                children: [
+            GestureDetector(
+              onTap: (){
 
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.primary,
-                        width: 3,
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.primary,
+                          width: 2,
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        radius: 35,
+                        backgroundImage: NetworkImage(
+                          AvatarHelper.getAvatar('hijab', '123'),
+                        ),
                       ),
                     ),
-                    child: CircleAvatar(
-                      radius: 55,
-                      backgroundImage: NetworkImage(
-                        AvatarHelper.getAvatar('hijab', '123'),
+
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          Text(
+                            "Kareem Abunaga",
+                            style: AppTextStyles.mediumBlack.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 6),
+
+                          Text(
+                            "0530572149",
+                            style: AppTextStyles.smallGrey,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 12),
-
-                  Text(
-                    "User Name",
-                    style: AppTextStyles.mediumBlack.copyWith(
-                      fontWeight: FontWeight.bold,
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 18,
+                      color: Colors.grey.shade400,
                     ),
-                  ),
-
-                  const SizedBox(height: 5),
-
-                  Text(
-                    "user@email.com",
-                    style: AppTextStyles.smallGrey,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -79,16 +111,23 @@ class ProfileScreen extends StatelessWidget {
                 children: [
 
                   MoreMenuItem(
-                    icon: Icons.calendar_month,
-                    title: AppLocalization.t('المواعيد'),
-                    color: Colors.blue,
+                    icon: Icons.request_page_rounded,
+                    title: AppLocalization.t('طلبات المواعيد'),
+                    color: AppColors.secondary,
                     onTap: () {},
                   ),
 
                   MoreMenuItem(
-                    icon: Icons.request_page_rounded,
-                    title: AppLocalization.t('طلبات المواعيد'),
-                    color: Colors.orange,
+                    icon: Icons.people,
+                    title: AppLocalization.t('التابعين'),
+                    color: Colors.cyan,
+                    onTap: () {},
+                  ),
+
+                  MoreMenuItem(
+                    icon: Icons.notifications_active,
+                    title: AppLocalization.t('الاشعارات'),
+                    color: Colors.teal,
                     onTap: () {},
                   ),
 
@@ -106,7 +145,7 @@ class ProfileScreen extends StatelessWidget {
                     },
                   ),
 
-                  /*MoreMenuItem(
+                  MoreMenuItem(
                     icon: Icons.settings,
                     title: AppLocalization.t('الإعدادات'),
                     color: Colors.grey,
@@ -118,10 +157,10 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       );
                     },
-                  ),*/
+                  ),
 
                   MoreMenuItem(
-                    icon: Icons.logout,
+                    icon: Icons.policy_rounded,
                     title: "الشروط والاحكام",
                     color: AppColors.warning,
                     onTap: () async {

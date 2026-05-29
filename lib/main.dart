@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
 import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
 import 'package:nabd_client_app/presentation/invoices/cubits/invoices_cubit.dart';
 import 'package:nabd_client_app/presentation/language/cubits/language/language_cubit.dart';
@@ -25,6 +26,7 @@ void main() async {
           BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>(),),
           BlocProvider<InvoicesCubit>(create: (_) => sl<InvoicesCubit>(),),
           BlocProvider<SubscriptionsCubit>(create: (_) => sl<SubscriptionsCubit>(),),
+          BlocProvider<AppointmentsCubit>(create: (_) => sl<AppointmentsCubit>(),),
         ],
         child: const MyApp(),
       ),

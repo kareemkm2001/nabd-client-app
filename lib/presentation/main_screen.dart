@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
+import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
+import 'package:nabd_client_app/presentation/appointments/screens/appointments_screen.dart';
 import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
 import 'package:nabd_client_app/presentation/subscriptions/screens/subscriptions_screen.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
@@ -23,6 +25,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
+    context.read<AppointmentsCubit>().getAppointments();
     context.read<SubscriptionsCubit>().getSubscriptions();
     super.initState();
   }
@@ -32,9 +35,9 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> screens = [
 
-     HomeScreen(),
+    HomeScreen(),
 
-    const LikesScreen(),
+    AppointmentsScreen(),
 
     SubscriptionsScreen(),
 

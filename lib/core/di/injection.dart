@@ -1,12 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:nabd_client_app/core/network/dio_client.dart';
+import 'package:nabd_client_app/data/api/appointments/appointments_api.dart';
+import 'package:nabd_client_app/data/api/appointments/appointments_api_impl.dart';
 import 'package:nabd_client_app/data/api/invoice/invoice_api.dart';
 import 'package:nabd_client_app/data/api/invoice/invoice_api_impl.dart';
 import 'package:nabd_client_app/data/api/subscriptions/subscriptions_api.dart';
 import 'package:nabd_client_app/data/api/subscriptions/subscriptions_api_impl.dart';
+import 'package:nabd_client_app/domain/usecases/appointment_use_case.dart';
 import 'package:nabd_client_app/domain/usecases/invoice_use_case.dart';
 import 'package:nabd_client_app/domain/usecases/subscriptions_use_case.dart';
+import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
 import 'package:nabd_client_app/presentation/invoices/cubits/invoices_cubit.dart';
 import 'package:nabd_client_app/presentation/language/cubits/language/language_cubit.dart';
 import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
@@ -47,5 +51,11 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<SubscriptionsApi>(() => SubscriptionsApiImpl(api: sl<ApiService>()));
   sl.registerLazySingleton<SubscriptionsUseCase>(() => SubscriptionsUseCase(subscriptionsApi: sl<SubscriptionsApi>()));
   sl.registerFactory<SubscriptionsCubit>(() => SubscriptionsCubit(subscriptionsUseCase: sl<SubscriptionsUseCase>()));
+
+  /* APPOINTMENTS */
+  sl.registerLazySingleton<AppointmentsApi>(() => AppointmentsApiImpl(api: sl<ApiService>()));
+  sl.registerLazySingleton<AppointmentUseCase>(() => AppointmentUseCase(appointmentsApi: sl<AppointmentsApi>()));
+  sl.registerFactory<AppointmentsCubit>(()=> AppointmentsCubit(appointmentUseCase: sl<AppointmentUseCase>()));
+
 
 }

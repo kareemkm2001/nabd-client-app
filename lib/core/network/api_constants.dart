@@ -18,4 +18,7 @@ class ApiConstants {
   //Subscriptions
   static const String subscriptions = "api/v1/subscriptions";
 
+  // Appointments
+  static const String appointments = "api/v1/appointments" ;
+
 }
