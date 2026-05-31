@@ -8,6 +8,19 @@ import 'language_state.dart';
 class LanguageCubit extends Cubit<LanguageState> {
   LanguageCubit() : super(const LanguageState(locale: Locale('ar')));
 
+
+  List<String> languages = ['ar', 'en'];
+
+  List<String> sortedLanguages(String selected) {
+    final list = [...languages];
+    list.sort((a, b) {
+      if (a == selected) return -1;
+      if (b == selected) return 1;
+      return 0;
+    });
+    return list;
+  }
+
   final LanguageService _service = LanguageService();
 
   Future<void> init() async {

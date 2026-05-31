@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/utils/get_greeting.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
+import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
+import 'package:nabd_client_app/presentation/profile/cubit/profile_state.dart';
 
-import '../../../../core/localization/app_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/appointment_booking_widget.dart';
 import '../widgets/subscription_booking_widget.dart';
 class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
 
    @override
@@ -16,15 +19,23 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: AppText(
-            jsonKey: "${getGreeting()}, كريم",
-          textStyle: AppTextStyles.mediumBoldPrimary,
-        ),
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            backgroundImage: AssetImage("assets/images/profile.png"),
-          ),
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: BlocBuilder<ProfileCubit,ProfileState>(
+            builder: (context , state){
+              if(state is GetProfilesSuc){
+                return AppText(
+                  jsonKey: "${getGreeting()}, ${state.profile.firstName}",
+                  textStyle: AppTextStyles.mediumBoldPrimary,
+                );
+              }
+              return AppText(
+                  jsonKey: "${getGreeting()}, _ ",
+              textStyle: AppTextStyles.mediumBoldPrimary
+              );
+            }
+
         ),
         actions: [
           Padding(

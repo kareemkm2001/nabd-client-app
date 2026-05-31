@@ -211,6 +211,20 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
+  void refreshToken() async {
+    print("الفن اشتغلت }");
+
+    final result = await authUseCase.refreshToken();
+
+    result.fold(
+            (l){
+              print("المشكله ${l.message}");
+        }, (r){
+              
+    }
+    );
+  }
+
   void logout(BuildContext context) async {
     TokenService.clearToken();
     Navigator.pushAndRemoveUntil(
@@ -219,6 +233,7 @@ class AuthCubit extends Cubit<AuthState> {
         (route) => false
     );
   }
+
 
 
 }

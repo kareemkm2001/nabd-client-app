@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
+import 'package:nabd_client_app/core/widgets/app_info_tile.dart';
 import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
 import 'package:nabd_client_app/presentation/invoices/screens/invoice_screen.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
@@ -14,7 +15,7 @@ import '../../../../core/localization/app_localization.dart';
 import '../../../data/local/token_service.dart';
 import '../../../../core/widgets/app_route_animation.dart';
 import '../../../core/helper/avatar_helper.dart';
-import '../../settings/settings_screen.dart';
+import '../../settings/screens/settings_screen.dart';
 import '../widgets/profile_menu_item.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -200,13 +201,23 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.logout,
                     title: AppLocalization.t('تسجيل الخروج'),
                     color: Colors.red,
-                    onTap: () async {
-                      await TokenService.clearToken();
+                    onTap: () {
+                      InfoDialog.show(
+                          context: context,
+                          title: "تسجيل الخروج",
+                          icon: Icons.logout,
+                          color: AppColors.error,
+                          actionText: "الخروج",
+                        subtitle: "هل انت متاكد من تسجيل الخروج",
+                        onAction: ()async {
+                          await TokenService.clearToken();
 
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        AppRouteAnimation(page: const AuthScreen()),
-                            (_) => false,
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            AppRouteAnimation(page: const AuthScreen()),
+                                (_) => false,
+                          );
+                        }
                       );
                     },
                   ),

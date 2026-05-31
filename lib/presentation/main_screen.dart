@@ -5,6 +5,7 @@ import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
 import 'package:nabd_client_app/presentation/appointments/screens/appointments_screen.dart';
+import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
 import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
 import 'package:nabd_client_app/presentation/subscriptions/screens/subscriptions_screen.dart';

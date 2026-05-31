@@ -15,4 +15,6 @@ abstract class AuthApi{
 
   Future<Either<Failure , ResponseOtpModel>> register(RegisterRequestModel registerRequestModel);
 
+  Future<Either<Failure , int>> refreshToken() ;
+
 }

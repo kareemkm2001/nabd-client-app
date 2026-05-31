@@ -25,4 +25,8 @@ class AuthUseCase {
   Future<Either<Failure, ResponseOtpModel>> register(RegisterRequestModel registerRequestModel) async {
     return await authApi.register(registerRequestModel);
   }
+
+  Future<Either<Failure, int>> refreshToken() async {
+    return await authApi.refreshToken();
+  }
 }

@@ -94,4 +94,24 @@ class AuthApiImpl implements AuthApi {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, int>> refreshToken() async {
+    try {
+
+      final response = await api.post(ApiConstants.refreshToken,);
+
+
+      final token = response.data["data"]["access_token"];
+
+      await TokenService.saveToken(token ?? "");
+
+      return Right(1);
+    } on DioException catch (e){
+      return Left(ErrorHandler.handle(e));
+
+    }catch (e){
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

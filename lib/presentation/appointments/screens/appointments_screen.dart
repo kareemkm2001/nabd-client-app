@@ -4,6 +4,7 @@ import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_state.dart';
+import 'package:nabd_client_app/presentation/appointments/widgets/appointment_card.dart';
 
 class AppointmentsScreen extends StatelessWidget {
   const AppointmentsScreen({super.key});
@@ -23,10 +24,7 @@ class AppointmentsScreen extends StatelessWidget {
               return ListView.builder(
                   itemCount: state.appointments.length,
                   itemBuilder: (context , index){
-                    return ListTile(
-                      title: Text(state.appointments[index].clinic.name),
-                      subtitle: Text(state.appointments[index].users[0].username),
-                    );
+                    return AppointmentCard(appointment: state.appointments[index]);
                   }
               );
             }

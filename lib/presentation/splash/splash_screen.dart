@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:nabd_client_app/data/local/token_service.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
@@ -7,6 +8,9 @@ import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
 import 'package:nabd_client_app/presentation/main_screen.dart';
+import '../../core/services/biometric_service.dart';
+import '../../data/local/biometric_prefs.dart';
+import '../auth/cubit/auth_cubit.dart';
 import '../onboarding/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -26,6 +30,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
+
+    context.read<AuthCubit>().refreshToken();
 
     _scaleController = AnimationController(
       vsync: this,
@@ -62,7 +68,35 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       if (!mounted) return;
 
       final token = await TokenService.getToken();
-      Navigator.of(context).pushReplacement(AppRouteAnimation(page: token == null ? OnboardingScreen() : MainScreen()));
+
+      if (token == null) {
+        Navigator.of(context).pushReplacement(
+          AppRouteAnimation(
+            page: OnboardingScreen(),
+          ),
+        );
+        return;
+      }
+
+      // لو المستخدم مسجل دخول
+      final biometricEnabled = await BiometricPrefs.isEnabled();
+
+      if (biometricEnabled) {
+        final authenticated =
+        await BiometricService.authenticate();
+
+        if (!authenticated) {
+          return;
+        }
+      }
+
+      if (!mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        AppRouteAnimation(
+          page: MainScreen(),
+        ),
+      );
     });
   }
 
