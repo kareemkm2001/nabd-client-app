@@ -1,15 +1,26 @@
+import 'package:flutter/material.dart';
+
 class AvatarHelper {
-  static String getAvatar(String type, String id) {
-    switch (type) {
-      case 'gulf':
-        return "https://api.dicebear.com/7.x/adventurer/png?seed=gulf_$id";
+  static Widget getAvatar(String firstName, String lastName) {
+    final String initials =
+        "${_getInitial(firstName)} ${_getInitial(lastName)}";
 
-      case 'hijab':
-        return "https://api.dicebear.com/7.x/lorelei/png?seed=hijab_$id";
+    return CircleAvatar(
+      radius: 35,
+      backgroundColor: Colors.blueAccent,
+      child: Text(
+        initials.toUpperCase(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 22,
+        ),
+      ),
+    );
+  }
 
-      case 'normal':
-      default:
-        return "https://api.dicebear.com/7.x/avataaars/png?seed=normal_$id";
-    }
+  static String _getInitial(String name) {
+    if (name.trim().isEmpty) return "";
+    return name.trim().characters.first;
   }
 }

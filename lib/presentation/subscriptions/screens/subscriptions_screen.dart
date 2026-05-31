@@ -30,7 +30,7 @@ class SubscriptionsScreen extends StatelessWidget {
                         onTap: (){
                           Navigator.push(
                               context,
-                              AppRouteAnimation(page: SubscriptionDetailsPage(subscription: state.subscriptions[index],))
+                              AppRouteAnimation(page: SubscriptionDetailScreen(subscription: state.subscriptions[index],))
                           );
                         }
                     );

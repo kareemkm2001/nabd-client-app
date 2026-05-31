@@ -5,10 +5,10 @@ import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/domain/models/subscriptions/subscriptions_response.dart';
 
-class SubscriptionDetailsPage extends StatelessWidget {
+class SubscriptionDetailScreen extends StatelessWidget {
   final SubscriptionModel subscription;
 
-  const SubscriptionDetailsPage({
+  const SubscriptionDetailScreen({
     super.key,
     required this.subscription,
   });

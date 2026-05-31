@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:nabd_client_app/core/error/failures.dart';
 import 'package:nabd_client_app/core/network/api_constants.dart';
 import 'package:nabd_client_app/core/network/api_service.dart';
-import 'package:nabd_client_app/core/services/token_service.dart';
+import 'package:nabd_client_app/data/local/token_service.dart';
 import 'package:nabd_client_app/domain/models/auth/register_request_model.dart';
 import 'package:nabd_client_app/domain/models/auth/request_OTP_model.dart';
 import 'package:nabd_client_app/domain/models/auth/response_OTP_model.dart';
@@ -55,20 +55,16 @@ class AuthApiImpl implements AuthApi {
           ApiConstants.loginOTPVerify,
           data: verifyOtpRequestModel.toJson()
       );
-      
-      print("شكل الطلب ${verifyOtpRequestModel.toJson()}");
 
       final model = VerifyOtpResponseModel.fromJson(response.data);
+
       await TokenService.saveToken(model.data?.accessToken ?? "");
-      print("النتيجة $model");
 
       return Right(model);
     } on DioException catch (e){
-      print("مممممممممممممممم ${e.error}");
       return Left(ErrorHandler.handle(e));
 
     }catch (e){
-      print("،ننننننننننننن    ${e}");
       return Left(ServerFailure(e.toString()));
     }
   }

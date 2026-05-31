@@ -1,4 +1,4 @@
-import '../user/user_model.dart';
+import 'user_model.dart';
 
 class AuthDataModel  {
   final UserModel? user;
@@ -17,8 +17,8 @@ class AuthDataModel  {
 
   factory AuthDataModel .fromJson(Map<String, dynamic> json) {
     return AuthDataModel (
-      user: json['user'] != null
-          ? UserModel.fromJson(json['user'])
+      user: json['profile'] != null
+          ? UserModel.fromJson(json['profile'])
           : null,
       accessToken: json['access_token'],
       refreshToken: json['refresh_token'],
@@ -29,7 +29,7 @@ class AuthDataModel  {
 
   Map<String, dynamic> toJson() {
     return {
-      'user': user?.toJson(),
+      'profile': user?.toJson(),
       'access_token': accessToken,
       'refresh_token': refreshToken,
       'token_type': tokenType,

@@ -6,6 +6,7 @@ import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
 import 'package:nabd_client_app/presentation/invoices/cubits/invoices_cubit.dart';
 import 'package:nabd_client_app/presentation/language/cubits/language/language_cubit.dart';
 import 'package:nabd_client_app/presentation/language/cubits/language/language_state.dart';
+import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
 import 'package:nabd_client_app/presentation/splash/splash_screen.dart';
 import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
 
@@ -24,6 +25,7 @@ void main() async {
         providers: [
           BlocProvider<LanguageCubit>(create: (_) => sl<LanguageCubit>()..init(),),
           BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>(),),
+          BlocProvider<ProfileCubit>(create: (_) => sl<ProfileCubit>()),
           BlocProvider<InvoicesCubit>(create: (_) => sl<InvoicesCubit>(),),
           BlocProvider<SubscriptionsCubit>(create: (_) => sl<SubscriptionsCubit>(),),
           BlocProvider<AppointmentsCubit>(create: (_) => sl<AppointmentsCubit>(),),

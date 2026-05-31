@@ -22,7 +22,7 @@ class SubscriptionModel{
   final String? notes;
   final String createdAt;
 
-  // user
+  // profile
   final String userName;
   final String clinicName;
   final String doctorName;
@@ -80,7 +80,7 @@ class SubscriptionModel{
       createdAt: json['created_at'] ?? '',
 
       /// nested flattening 👇
-      userName: json['user']?['full_name'] ?? '',
+      userName: json['profile']?['full_name'] ?? '',
       clinicName: json['clinic']?['name'] ?? '',
       doctorName: json['clinic']?['doctor']?['full_name'] ?? '',
       packageName: json['package']?['name'] ?? '',

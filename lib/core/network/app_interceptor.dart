@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:nabd_client_app/core/services/token_service.dart';
+import 'package:nabd_client_app/data/local/token_service.dart';
 
 class AppInterceptor extends Interceptor {
 

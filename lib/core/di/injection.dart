@@ -5,14 +5,18 @@ import 'package:nabd_client_app/data/api/appointments/appointments_api.dart';
 import 'package:nabd_client_app/data/api/appointments/appointments_api_impl.dart';
 import 'package:nabd_client_app/data/api/invoice/invoice_api.dart';
 import 'package:nabd_client_app/data/api/invoice/invoice_api_impl.dart';
+import 'package:nabd_client_app/data/api/profile/profile_api.dart';
+import 'package:nabd_client_app/data/api/profile/profile_api_impl.dart';
 import 'package:nabd_client_app/data/api/subscriptions/subscriptions_api.dart';
 import 'package:nabd_client_app/data/api/subscriptions/subscriptions_api_impl.dart';
 import 'package:nabd_client_app/domain/usecases/appointment_use_case.dart';
 import 'package:nabd_client_app/domain/usecases/invoice_use_case.dart';
+import 'package:nabd_client_app/domain/usecases/profile_use_case.dart';
 import 'package:nabd_client_app/domain/usecases/subscriptions_use_case.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
 import 'package:nabd_client_app/presentation/invoices/cubits/invoices_cubit.dart';
 import 'package:nabd_client_app/presentation/language/cubits/language/language_cubit.dart';
+import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
 import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
 
 import '../../data/api/auth/auth_api.dart';
@@ -41,6 +45,13 @@ Future<void> setupLocator() async {
   /* LANGUAGE */
 
   sl.registerFactory(() => LanguageCubit());
+
+
+  /* PROFILE */
+  sl.registerLazySingleton<ProfileApi>(() => ProfileApiImpl(api: sl<ApiService>()));
+  sl.registerLazySingleton<ProfileUseCase>(() => ProfileUseCase(profileApi: sl<ProfileApi>()));
+  sl.registerFactory<ProfileCubit>(()=> ProfileCubit(profileUseCase: sl<ProfileUseCase>()));
+
 
   /* INVOICE */
   sl.registerLazySingleton<InvoiceApi>(() => InvoiceApiImpl(api: sl<ApiService>()),);

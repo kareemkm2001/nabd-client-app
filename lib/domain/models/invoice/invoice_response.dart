@@ -44,11 +44,11 @@ class InvoiceModel {
       id: json['id'] ?? 0,
       title: json['title'] ?? '',
 
-      invoiceId: json['user']?['id'] ?? 0,
+      invoiceId: json['profile']?['id'] ?? 0,
 
 
 
-      userName: json['user']?['name'] ?? '',
+      userName: json['profile']?['name'] ?? '',
       clinicName: json['clinic']?['name'] ?? '',
       doctorName: json['clinic']?['doctor']?['name'] ?? '',
 

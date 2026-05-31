@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/localization/app_localization.dart';
-import 'package:nabd_client_app/core/services/token_service.dart';
+import 'package:nabd_client_app/data/local/token_service.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/core/widgets/country_picker.dart';
 import 'package:nabd_client_app/domain/models/auth/register_request_model.dart';

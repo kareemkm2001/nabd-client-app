@@ -10,7 +10,9 @@ class ApiConstants {
   static const String refreshToken = "api/v1/auth/refresh";
 
 
-  static const String products = "products";
+  // Profile
+  static const String profile = "api/v1/profile" ;
+
 
   // Invoices
   static const String invoices = "api/v1/invoices";
