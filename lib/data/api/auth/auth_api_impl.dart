@@ -103,8 +103,15 @@ class AuthApiImpl implements AuthApi {
 
 
       final token = response.data["data"]["access_token"];
+      
+      print("التوكن الجديد اهو $token");
 
       await TokenService.saveToken(token ?? "");
+
+      final String? tkoenDb = await TokenService.getToken();
+
+      print("التوكن المخزن اهو اهو $tkoenDb");
+
 
       return Right(1);
     } on DioException catch (e){

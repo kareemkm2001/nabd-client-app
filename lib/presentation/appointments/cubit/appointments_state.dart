@@ -1,3 +1,4 @@
+import 'package:nabd_client_app/domain/models/appointment/appointment_data_model.dart';
 import 'package:nabd_client_app/domain/models/appointment/appointment_model.dart';
 
 class AppointmentsState {}
@@ -16,4 +17,20 @@ class GetAppointmentError extends AppointmentsState {
   final String errorMsg ;
 
   GetAppointmentError({required this.errorMsg});
+}
+
+
+
+class GetAppointmentByIdSuc extends AppointmentsState {
+  final AppointmentDataModel appointment ;
+
+  GetAppointmentByIdSuc({required this.appointment});
+}
+
+class GetAppointmentByIdLoading extends AppointmentsState {}
+
+class GetAppointmentByIdError extends AppointmentsState {
+  final String errorMsg ;
+
+  GetAppointmentByIdError({required this.errorMsg});
 }

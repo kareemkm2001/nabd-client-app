@@ -10,6 +10,6 @@ class BiometricPrefs {
 
   static Future<bool> isEnabled() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_key) ?? true;
+    return prefs.getBool(_key) ?? false;
   }
 }

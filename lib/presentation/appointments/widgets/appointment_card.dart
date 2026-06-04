@@ -23,9 +23,6 @@ class AppointmentCard extends StatelessWidget {
       dt = DateTime.now();
     }
 
-    final isOnline =
-        appointment.type.toLowerCase().contains("online") ||
-            appointment.type.toLowerCase().contains("اونلاين");
 
     return GestureDetector(
       onTap: onTap,
@@ -105,15 +102,15 @@ class AppointmentCard extends StatelessWidget {
                   padding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: isOnline
+                    color: appointment.type == "حضوري"
                         ? Colors.blue.withOpacity(0.1)
                         : Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    isOnline ? "عن بعد" : "حضوري",
+                    appointment.type,
                     style: TextStyle(
-                      color: isOnline ? Colors.blue : Colors.green,
+                      color: appointment.type == "حضوري" ? Colors.blue : Colors.green,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),

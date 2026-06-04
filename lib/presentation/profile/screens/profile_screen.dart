@@ -4,6 +4,7 @@ import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
 import 'package:nabd_client_app/core/widgets/app_info_tile.dart';
+import 'package:nabd_client_app/presentation/auth/cubit/auth_cubit.dart';
 import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
 import 'package:nabd_client_app/presentation/invoices/screens/invoice_screen.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
@@ -143,12 +144,12 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () {},
                   ),
 
-                  MoreMenuItem(
+                 /* MoreMenuItem(
                     icon: Icons.people,
                     title: AppLocalization.t('التابعين'),
                     color: Colors.cyan,
                     onTap: () {},
-                  ),
+                  ),*/
 
                   MoreMenuItem(
                     icon: Icons.notifications_active,
@@ -209,14 +210,8 @@ class ProfileScreen extends StatelessWidget {
                           color: AppColors.error,
                           actionText: "الخروج",
                         subtitle: "هل انت متاكد من تسجيل الخروج",
-                        onAction: ()async {
-                          await TokenService.clearToken();
-
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            AppRouteAnimation(page: const AuthScreen()),
-                                (_) => false,
-                          );
+                        onAction: () {
+                            context.read<AuthCubit>().logout(context);
                         }
                       );
                     },

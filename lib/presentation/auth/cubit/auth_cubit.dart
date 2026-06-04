@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/localization/app_localization.dart';
+import 'package:nabd_client_app/data/local/biometric_prefs.dart';
 import 'package:nabd_client_app/data/local/token_service.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/core/widgets/country_picker.dart';
@@ -214,19 +215,24 @@ class AuthCubit extends Cubit<AuthState> {
   void refreshToken() async {
     print("الفن اشتغلت }");
 
-    final result = await authUseCase.refreshToken();
+    final token = await TokenService.getToken();
 
-    result.fold(
-            (l){
-              print("المشكله ${l.message}");
-        }, (r){
-              
+    if(token != null){
+      final result = await authUseCase.refreshToken();
+
+      result.fold(
+              (l){
+            print("المشكله ${l.message}");
+          }, (r){
+
+      }
+      );
     }
-    );
   }
 
   void logout(BuildContext context) async {
     TokenService.clearToken();
+    BiometricPrefs.setEnabled(false);
     Navigator.pushAndRemoveUntil(
         context,
         AppRouteAnimation(page: AuthScreen()),

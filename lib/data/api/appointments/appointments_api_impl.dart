@@ -8,6 +8,7 @@ import 'package:nabd_client_app/domain/models/appointment/appointment_model.dart
 import '../../../core/error/error_handler.dart';
 import '../../../core/error/server_failure.dart';
 import '../../../core/network/api_constants.dart';
+import '../../../domain/models/appointment/appointment_data_model.dart';
 
 class AppointmentsApiImpl implements AppointmentsApi {
 
@@ -38,4 +39,28 @@ class AppointmentsApiImpl implements AppointmentsApi {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, AppointmentDataModel>> getAppointmentById({required int id}) async {
+    try {
+
+      final response = await api.get("${ApiConstants.appointments}/show/$id");
+
+
+      final model = response.data['data'];
+
+      final appointment = AppointmentDataModel.fromJson(model);
+
+      return Right(appointment);
+
+    }on DioException catch (e){
+      print("مممممممممممممممم ${e.message}");
+      return Left(ErrorHandler.handle(e));
+    }catch (e){
+      print("،ننننننننننننن    ${e}");
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+
 }

@@ -86,9 +86,9 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   title: "English",
                   selected: selectedLang == 'en',
                   flag: const Text("🇬🇧", style: TextStyle(fontSize: 20)),
-                  onTap: () => cubit.changeLanguage('en'),
+                  onTap: () {} /*cubit.changeLanguage('en')*/,
                 );
-              }).toList(),
+              }),
             ],
           ),
         );
