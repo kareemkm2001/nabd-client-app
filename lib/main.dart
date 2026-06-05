@@ -12,6 +12,7 @@ import 'package:nabd_client_app/presentation/splash/splash_screen.dart';
 import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
 
 import 'core/di/injection.dart';
+import 'core/services/fcm_service.dart';
 import 'core/utils/restart_widget.dart';
 
 
@@ -19,6 +20,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp,]);
+
+  await FCMService.init();
 
   await setupLocator();
 

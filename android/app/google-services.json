@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1063728497269",
+    "project_id": "nabd-app-98ea7",
+    "storage_bucket": "nabd-app-98ea7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063728497269:android:526f557b6f737bead62e3c",
+        "android_client_info": {
+          "package_name": "com.nwit.nabd_client_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBi8KIaS9GTMbeY7NFeHiLgxhQkzP19cvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

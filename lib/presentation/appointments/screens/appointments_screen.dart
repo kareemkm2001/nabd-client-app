@@ -7,6 +7,7 @@ import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_state.dart';
 import 'package:nabd_client_app/presentation/appointments/screens/appointment_details_screen.dart';
+import 'package:nabd_client_app/presentation/appointments/screens/create_normal_appointments_screen.dart';
 import 'package:nabd_client_app/presentation/appointments/widgets/appointment_card.dart';
 
 import '../../../core/widgets/custom_speed_dial.dart';
@@ -99,7 +100,9 @@ class AppointmentsScreen extends StatelessWidget {
               ),
             ),
 
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context, AppRouteAnimation(page: CreateNormalAppointmentsScreen()));
+            },
           ),
         ],
       ),
