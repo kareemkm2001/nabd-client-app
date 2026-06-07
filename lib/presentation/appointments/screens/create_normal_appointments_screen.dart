@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:im_stepper/stepper.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
-import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
-import 'package:nabd_client_app/presentation/appointments/screens/payment_view_sceen.dart';
+import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
+
+import '../widgets/clinic_step.dart';
+import '../widgets/date_time_step.dart';
+import '../widgets/payment_step.dart';
+import '../widgets/service_step.dart';
 
 class CreateNormalAppointmentsScreen extends StatefulWidget {
   const CreateNormalAppointmentsScreen({super.key});
@@ -14,7 +19,12 @@ class CreateNormalAppointmentsScreen extends StatefulWidget {
 
 class _CreateNormalAppointmentsScreenState extends State<CreateNormalAppointmentsScreen> {
 
-  int activeStep = 0;
+
+  @override
+  void initState() {
+    context.read<AppointmentsCubit>().getClinics();
+    super.initState();
+  }
 
   final List<String> titles = [
     "العيادة",
@@ -25,6 +35,9 @@ class _CreateNormalAppointmentsScreenState extends State<CreateNormalAppointment
 
   @override
   Widget build(BuildContext context) {
+
+    final appointmentsCubit = context.read<AppointmentsCubit>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppAppBar(
@@ -39,7 +52,7 @@ class _CreateNormalAppointmentsScreenState extends State<CreateNormalAppointment
             lineColor: AppColors.secondary.withValues(alpha: 0.5),
             activeStepColor: AppColors.primary,
             activeStepBorderColor: AppColors.primary,
-            activeStep: activeStep,
+            activeStep: appointmentsCubit.activeStep,
             enableNextPreviousButtons: false,
             enableStepTapping: false,
             icons:  [
@@ -52,8 +65,18 @@ class _CreateNormalAppointmentsScreenState extends State<CreateNormalAppointment
 
           const SizedBox(height: 12),
 
+          if(appointmentsCubit.activeStep != 0)
+            IconButton(
+                onPressed: (){
+                  setState(() {
+                    appointmentsCubit.activeStep-- ;
+                    appointmentsCubit.clinicServicesData = null ;
+                  });
+                },
+                icon: Icon(Icons.arrow_back)
+            ),
           Text(
-            titles[activeStep],
+            titles[appointmentsCubit.activeStep],
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -64,12 +87,12 @@ class _CreateNormalAppointmentsScreenState extends State<CreateNormalAppointment
 
           Expanded(
             child: IndexedStack(
-              index: activeStep,
+              index: appointmentsCubit.activeStep,
               children: const [
-                _ClinicStep(),
-                _ServiceStep(),
-                _DateTimeStep(),
-                _PaymentStep(),
+                ClinicStep(),
+                ServiceStep(),
+                DateTimeStep(),
+                PaymentStep(),
               ],
             ),
           ),
@@ -77,108 +100,19 @@ class _CreateNormalAppointmentsScreenState extends State<CreateNormalAppointment
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
-        child: activeStep == 0
-            ? SizedBox(
+        child: SizedBox(
           height: 56,
+          width: double.infinity,
           child: ElevatedButton(
-            onPressed: () {
+            onPressed: (){
               setState(() {
-                activeStep++;
+                appointmentsCubit.onNextPressed(context);
               });
             },
-            child: const Text(
-              "التالي",
-            ),
+            child: Text(appointmentsCubit.getButtonTitle()),
           ),
-        )
-            : Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: SizedBox(
-                height: 56,
-                child: OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      activeStep--;
-                    });
-                  },
-                  child: const Text(
-                    "السابق",
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 2,
-              child: SizedBox(
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (activeStep < 3) {
-                      setState(() {
-                        activeStep++;
-                      });
-                    } else {
-                      Navigator.push(context, AppRouteAnimation(page: PaymentViewScreen(paymentUrl: "https://checkout.tap.company/?mode=page&themeMode=&language=en&token=eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjZhMjM0YTkyMzE2OGM1M2QyYzUwYTM4YiJ9.CYZlHfxJvAUrjzZ81IuTwIqpVLhRQJOyvA82y4EvSUw")));
-                    }
-                  },
-                  child: Text(
-                    activeStep == 3
-                        ? "إتمام عملية الدفع"
-                        : "التالي",
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ),
-    );
-  }
-}
-
-class _ClinicStep extends StatelessWidget {
-  const _ClinicStep();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text("اختيار العيادة"),
-    );
-  }
-}
-
-class _ServiceStep extends StatelessWidget {
-  const _ServiceStep();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text("اختيار الخدمة ونوع الحجز"),
-    );
-  }
-}
-
-class _DateTimeStep extends StatelessWidget {
-  const _DateTimeStep();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text("اختيار التاريخ والوقت"),
-    );
-  }
-}
-
-class _PaymentStep extends StatelessWidget {
-  const _PaymentStep();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text("اختيار طريقة الدفع"),
     );
   }
 }

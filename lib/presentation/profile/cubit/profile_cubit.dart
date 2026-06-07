@@ -19,6 +19,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         emit(GetProfileError(errorMsg: l.message));
       },
       (r) {
+        print("الملف الشخصي ${r.toJson()}");
         emit(GetProfilesSuc(profile: r));
       },
     );

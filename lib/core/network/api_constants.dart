@@ -22,5 +22,7 @@ class ApiConstants {
 
   // Appointments
   static const String appointments = "api/v1/appointments" ;
+  static const String clinics = "api/v1/appointments/dropdowns" ;
+  static const String services = "api/v1/filters/clinic_information?id=" ;
 
 }

@@ -3,7 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:nabd_client_app/core/error/failures.dart';
 import 'package:nabd_client_app/core/network/api_service.dart';
 import 'package:nabd_client_app/data/api/appointments/appointments_api.dart';
+import 'package:nabd_client_app/domain/models/appointment/AppointmentClinicServisesModel.dart';
 import 'package:nabd_client_app/domain/models/appointment/appointment_model.dart';
+import 'package:nabd_client_app/domain/models/appointment/clinics_res_model.dart';
 
 import '../../../core/error/error_handler.dart';
 import '../../../core/error/server_failure.dart';
@@ -52,6 +54,52 @@ class AppointmentsApiImpl implements AppointmentsApi {
       final appointment = AppointmentDataModel.fromJson(model);
 
       return Right(appointment);
+
+    }on DioException catch (e){
+      print("مممممممممممممممم ${e.message}");
+      return Left(ErrorHandler.handle(e));
+    }catch (e){
+      print("،ننننننننننننن    ${e}");
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ClinicResModel>>> getClinics() async {
+    try {
+
+      final response = await api.get(ApiConstants.clinics);
+
+
+      final List<dynamic> dataList = response.data['clinics'];
+
+      final List<ClinicResModel> clinics = dataList
+          .map<ClinicResModel>((e) => ClinicResModel.fromJson(e))
+          .toList();
+
+      return Right(clinics);
+
+    }on DioException catch (e){
+      print("مممممممممممممممم ${e.message}");
+      return Left(ErrorHandler.handle(e));
+    }catch (e){
+      print("،ننننننننننننن    ${e}");
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ClinicServicesDataModel>> getClinicServicesById({required int clinicId}) async{
+    try {
+
+      final response = await api.get("${ApiConstants.services}$clinicId}");
+
+
+      final model = response.data['data'];
+
+      final clinicServicesDataModel = ClinicServicesDataModel.fromJson(model);
+
+      return Right(clinicServicesDataModel);
 
     }on DioException catch (e){
       print("مممممممممممممممم ${e.message}");
