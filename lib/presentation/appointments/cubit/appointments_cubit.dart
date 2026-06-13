@@ -1,14 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
+import 'package:intl/intl.dart';
 import 'package:nabd_client_app/domain/models/appointment/appointment_data_model.dart';
 import 'package:nabd_client_app/domain/models/appointment/appointment_model.dart';
+import 'package:nabd_client_app/domain/models/appointment/clinic_times_response.dart';
+import 'package:nabd_client_app/domain/models/appointment/slot_model.dart';
 import 'package:nabd_client_app/domain/usecases/appointment_use_case.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_state.dart';
-import 'package:nabd_client_app/presentation/appointments/screens/payment_view_screen.dart';
-
 import '../../../domain/models/appointment/AppointmentClinicServisesModel.dart';
 import '../../../domain/models/appointment/clinics_res_model.dart';
+import '../../../domain/models/appointment/package_for_clinic_model.dart';
 class AppointmentsCubit  extends Cubit<AppointmentsState>{
   final AppointmentUseCase appointmentUseCase ;
 
@@ -18,12 +18,25 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
   List<AppointmentModel> appointments = [] ;
   List<ClinicResModel> clinics = [] ;
   AppointmentDataModel? appointmentDataModel ;
+
+  List<ClinicTimesResponse>? clinicTimes ;
+  List<SlotModel>? slots ;
+  List<PackageForClinicModel>? packagesClinic ;
+
+
+
+
+
+  String? actionType ;
   ClinicServicesDataModel? clinicServicesData;
-
-
   int activeStep = 0;
   int? selectedClinicId ;
   int? selectedServiceId;
+  int? selectedPeriodId;
+  int? selectedPackageId ;
+  int? taxInfo ;
+  double? selectedPrice ;
+  int? selectedSlotId ;
 
   Map<int, int> serviceVisitType = {};
 
@@ -35,60 +48,24 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
     emit(ClinicSelected());
   }
 
+  void selectPeriod(int id) {
+    selectedPeriodId = id;
+    emit(PeriodSelectedState());
 
-  String getButtonTitle() {
-    switch (activeStep) {
-      case 0:
-        return "اختار خدمتك";
-
-      case 1:
-        return "اختار معادك";
-
-      case 2:
-        return "تأكيد والدفع";
-
-      default:
-        return "الذهاب للدفع";
-    }
+    getSlots(id);
   }
 
-  void onNextPressed(BuildContext context) {
-    switch (activeStep) {
-      case 0:
-        if (selectedClinicId == null) return;
-
-        activeStep++;
-        getClinicServicesById();
-        emit(AppointmentStepChanged());
-        break;
-
-      case 1:
-        activeStep++;
-        emit(AppointmentStepChanged());
-        break;
-
-      case 2:
-        activeStep++;
-        emit(AppointmentStepChanged());
-        break;
-
-      case 3:
-        Navigator.push(
-            context,
-            AppRouteAnimation(page: PaymentViewScreen(paymentUrl: "https://checkout.tap.company/?mode=page&themeMode=&language=en&token=eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjZhMjM0YTkyMzE2OGM1M2QyYzUwYTM4YiJ9.CYZlHfxJvAUrjzZ81IuTwIqpVLhRQJOyvA82y4EvSUw"))
-        );
-    }
-  }
-
-  void onBackPressed(){
-    activeStep-- ;
-    emit(AppointmentStepChanged());
+  void selectSlot(int id) {
+    selectedSlotId = id;
+    emit(SlotSelectedState());
   }
 
 
-  void selectService(int id) {
+  void selectService({required int id , required double price}) {
     selectedServiceId = id;
+    selectedPrice = price ;
     print("الخدمه $selectedServiceId");
+
     emit(ServiceSelectedState());
   }
 
@@ -97,55 +74,56 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
     emit(ServiceVisitTypeChanged());
   }
 
-  List<Map<String, dynamic>> slots = [];
 
 
-  DateTime? selectedDate;
-
+  DateTime selectedDate = DateTime.now();
+  String selectedDateString = '';
 
   void selectDate(DateTime date) {
     selectedDate = date;
 
-    // هنا هتربط API بعدين
-    getSlots(date);
+    selectedDateString = DateFormat('MM/dd/yyyy').format(date);
+
+    emit(AppointmentsDateSelected());
   }
-
-  void getSlots(DateTime date) {
-    slots = [
-      {
-        "from_time": "09:00",
-        "to_time": "09:10",
-        "appointment": false
-      },
-      {
-        "from_time": "10:00",
-        "to_time": "10:10",
-        "appointment": true
-      },
-      {
-        "from_time": "11:00",
-        "to_time": "11:10",
-        "appointment": false
-      },
-    ];
-
-    emit(SlotsLoadedState());
-  }
-
-
 
 
 
   int? selectedPaymentMethod;
 
-// 1 = فيزا
+// 1 = تاب
 // 2 = تمارا
 // 3 = مدفوع
 
   void selectPaymentMethod(int method) {
     selectedPaymentMethod = method;
+    print("رقم الميثود $selectedPaymentMethod");
     emit(PaymentMethodChangedState());
   }
+
+  void resetAppointmentDataSelection() {
+    selectedClinicId = null;
+    selectedServiceId = null;
+    selectedPeriodId = null ;
+    selectedPaymentMethod = null ;
+    selectedPackageId = null ;
+  }
+
+  void selectPackage({required int id , required double price}) {
+    selectedPackageId = id;
+    selectedPrice = price ;
+    emit(PackageSelectedState());
+
+  }
+
+  double getTaxAmount() {
+    return ((taxInfo ?? 0) / 100) * (selectedPrice ?? 0);
+  }
+
+  double getTotalPrice() {
+    return (selectedPrice ?? 0) + getTaxAmount();
+  }
+
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   void getAppointments() async {
@@ -207,6 +185,68 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
           clinicServicesData = r ;
           print("تفاصيل المعاد $clinicServicesData");
           emit(GetClinicServicesByIdSuc());
+        }
+    );
+  }
+
+  void getClinicTimes() async {
+    emit(GetClinicTimesLoading());
+    final result = await appointmentUseCase.getClinicTimes(clinicId: selectedClinicId!, date: selectedDateString, reservationType: 0);
+
+    result.fold(
+        (l){
+          emit(GetClinicTimesError(errorMsg: l.message));
+        },
+        (r){
+          clinicTimes = r ;
+          emit(GetClinicTimesSuc());
+        }
+    );
+  }
+
+  void getSlots(int id) async {
+    emit(GetSlotsLoading());
+
+    final result = await appointmentUseCase.getSlots(clinicTimesId: id, date: selectedDateString, clinicId: selectedClinicId?? 1, serviceId: selectedServiceId ?? 1);
+
+    result.fold(
+        (l){
+          emit(GetSlotsError(errorMsg: l.message));
+        },
+        (r){
+          slots = r ;
+          emit(GetSlotsSuc());
+        }
+      );
+  }
+
+  void getClinicPackages() async {
+    emit(GetClinicPackagesLoading());
+
+    final result = await appointmentUseCase.getClinicPackagesById(selectedClinicId!);
+
+    result.fold(
+        (l){
+          emit(GetClinicPackagesError(errorMsg: l.message));
+        },
+        (r){
+          packagesClinic = r ;
+          emit(GetClinicPackagesSuc());
+        }
+    );
+  }
+
+  void getTaxInfo() async {
+
+    final result = await appointmentUseCase.getTaxInfo();
+
+    result.fold(
+        (l){
+
+        },
+        (r){
+          taxInfo = int.tryParse(r);
+          emit(GetTaxIngoLoaded());
         }
     );
   }

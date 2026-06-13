@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/localization/app_localization.dart';
+import 'package:nabd_client_app/core/services/local_notification_service.dart';
 import 'package:nabd_client_app/data/local/biometric_prefs.dart';
 import 'package:nabd_client_app/data/local/token_service.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
@@ -181,7 +182,8 @@ class AuthCubit extends Cubit<AuthState> {
               context: context,
               message: l.message
           );
-        }, (r){
+        }, (r)async {
+          await LocalNotificationService.show(title: "أهلًا بك في التطبيق 👋", body: "تم تسجيل الدخول بنجاح، نتمنى لك تجربة مميزة");
       showAppSnackBarSuc(
           context: context,
           message: r.message ?? ""

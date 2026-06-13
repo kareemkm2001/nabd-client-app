@@ -13,6 +13,7 @@ import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_c
 
 import 'core/di/injection.dart';
 import 'core/services/fcm_service.dart';
+import 'core/services/local_notification_service.dart';
 import 'core/utils/restart_widget.dart';
 
 
@@ -22,6 +23,7 @@ void main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp,]);
 
   await FCMService.init();
+  await LocalNotificationService.init();
 
   await setupLocator();
 

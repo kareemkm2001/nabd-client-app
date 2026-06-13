@@ -24,5 +24,9 @@ class ApiConstants {
   static const String appointments = "api/v1/appointments" ;
   static const String clinics = "api/v1/appointments/dropdowns" ;
   static const String services = "api/v1/filters/clinic_information?id=" ;
+  static const String clinicTime  = "api/v1/filters/clinic_availableTime" ;
+  static const String slots  = "api/v1/filters/service_availableTime" ;
+  static const String packagesClinic  = "api/v1/filters/clinic_packages" ;
+  static const String taxInfo  = "api/v1/filters/patient-tax-info" ;
 
 }

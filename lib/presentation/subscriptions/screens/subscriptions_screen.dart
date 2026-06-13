@@ -4,6 +4,8 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
+import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
+import 'package:nabd_client_app/presentation/appointments/screens/clinic_step_screen.dart';
 import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
 import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_state.dart';
 import 'package:nabd_client_app/presentation/subscriptions/screens/subscription_details_page.dart';
@@ -86,7 +88,15 @@ class SubscriptionsScreen extends StatelessWidget {
               ),
             ),
 
-            onTap: () {},
+            onTap: () {
+              context.read<AppointmentsCubit>().actionType = "add_sub" ;
+              Navigator.push(
+                  context,
+                  AppRouteAnimation(page: ClinicStepScreen())
+              ).then((_){
+                context.read<AppointmentsCubit>().resetAppointmentDataSelection();
+              });
+            },
           ),
         ],
       ),

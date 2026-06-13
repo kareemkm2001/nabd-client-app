@@ -7,8 +7,8 @@ import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_state.dart';
 import 'package:nabd_client_app/presentation/appointments/screens/appointment_details_screen.dart';
-import 'package:nabd_client_app/presentation/appointments/screens/create_normal_appointments_screen.dart';
 import 'package:nabd_client_app/presentation/appointments/widgets/appointment_card.dart';
+import 'package:nabd_client_app/presentation/appointments/screens/clinic_step_screen.dart';
 
 import '../../../core/widgets/custom_speed_dial.dart';
 
@@ -21,6 +21,9 @@ class AppointmentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final appointmentsCubit = context.read<AppointmentsCubit>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppAppBar(titleKey: "المواعيد", isHome: true,),
@@ -38,8 +41,7 @@ class AppointmentsScreen extends StatelessWidget {
             );
           }
 
-          final appointments =
-              context.read<AppointmentsCubit>().appointments;
+          final appointments = appointmentsCubit.appointments;
 
           return ListView.builder(
             controller: _scrollController,
@@ -90,6 +92,44 @@ class AppointmentsScreen extends StatelessWidget {
                   ],
                 ),
                 child: const Text(
+                  "حجز موعد من اشتراك",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+            onTap: () {
+              appointmentsCubit.actionType = "subscription" ;
+              Navigator.push(context, AppRouteAnimation(page: ClinicStepScreen())).then((_){
+                appointmentsCubit.resetAppointmentDataSelection();
+              });
+            },
+          ),
+          SpeedDialChild(
+            backgroundColor: AppColors.secondary,
+            labelWidget: Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                margin: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+                child: const Text(
                   "حجز موعد",
                   style: TextStyle(
                     color: Colors.white,
@@ -101,7 +141,10 @@ class AppointmentsScreen extends StatelessWidget {
             ),
 
             onTap: () {
-              Navigator.push(context, AppRouteAnimation(page: CreateNormalAppointmentsScreen()));
+              appointmentsCubit.actionType = "normal" ;
+              Navigator.push(context, AppRouteAnimation(page: ClinicStepScreen())).then((_){
+                appointmentsCubit.resetAppointmentDataSelection();
+              });
             },
           ),
         ],

@@ -52,6 +52,9 @@ class ServiceVisitTypeChanged extends AppointmentsState {}
 class SlotsLoadedState extends AppointmentsState {}
 class SlotSelectedState extends AppointmentsState {}
 class PaymentMethodChangedState extends AppointmentsState {}
+class AppointmentsDateSelected extends AppointmentsState {}
+class PeriodSelectedState extends AppointmentsState {}
+class PackageSelectedState extends AppointmentsState {}
 
 class GetClinicServicesByIdSuc extends AppointmentsState {}
 
@@ -62,3 +65,28 @@ class GetClinicServicesByIdError extends AppointmentsState {
 
 class GetClinicServicesByIdLoading extends AppointmentsState {}
 class GetSlotsLoading extends AppointmentsState {}
+class GetSlotsError extends AppointmentsState {
+  final String errorMsg ;
+  GetSlotsError({required this.errorMsg});
+}
+class GetSlotsSuc extends AppointmentsState {}
+
+class GetClinicTimesLoading extends AppointmentsState{}
+class GetClinicTimesSuc extends AppointmentsState{}
+class GetClinicTimesError extends AppointmentsState{
+  final String errorMsg ;
+  GetClinicTimesError({required this.errorMsg});
+}
+
+
+class GetClinicPackagesLoading extends AppointmentsState{}
+class GetClinicPackagesSuc extends AppointmentsState{}
+class GetClinicPackagesError extends AppointmentsState{
+  final String errorMsg ;
+  GetClinicPackagesError({required this.errorMsg});
+}
+
+class GetTaxIngoLoaded extends AppointmentsState {}
+
+
+

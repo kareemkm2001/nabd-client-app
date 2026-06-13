@@ -18,3 +18,5 @@ class GetProfileError extends ProfileState {
 
   GetProfileError({required this.errorMsg});
 }
+
+class ProfileSettingsLoaded extends ProfileState {}
