@@ -20,8 +20,9 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: margin,vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: margin,vertical: 20),
       child: SizedBox(
+        height: 50,
         width: double.infinity,
         child: ElevatedButton(
           onPressed: onTap,

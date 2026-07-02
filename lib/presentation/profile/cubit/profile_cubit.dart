@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nabd_client_app/core/widgets/top_snackbar.dart';
 import 'package:nabd_client_app/domain/models/profile/profile_model.dart';
+import 'package:nabd_client_app/domain/models/profile/update_profile_request.dart';
 import 'package:nabd_client_app/domain/usecases/profile_use_case.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_state.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,6 +20,30 @@ class ProfileCubit extends Cubit<ProfileState> {
   bool biometricEnabled = false;
   bool notificationsEnabled = false;
 
+  final formKey = GlobalKey<FormState>();
+
+  final firstNameController = TextEditingController();
+  final secondNameController = TextEditingController();
+  final thirdNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+
+  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
+
+  final mobileController = TextEditingController();
+  final countryCodeController = TextEditingController();
+  final proofController = TextEditingController();
+
+  final birthdayController = TextEditingController();
+
+  final addressController = TextEditingController();
+  final notesController = TextEditingController();
+
+  int gender = 1;
+  int socialSituation = 1;
+  int nationality = 1;
+  int countryCode = 966 ;
+
   Future<void> loadSettings() async {
     biometricEnabled = await BiometricPrefs.isEnabled();
 
@@ -24,6 +51,31 @@ class ProfileCubit extends Cubit<ProfileState> {
     notificationsEnabled = permission.isGranted;
 
     emit(ProfileSettingsLoaded());
+  }
+
+  void setIfNotNull(TextEditingController controller, String? value) {
+    if (value != null) {
+      controller.text = value;
+    }
+  }
+
+  void fillController() {
+    setIfNotNull(firstNameController, profileModel?.firstName);
+    setIfNotNull(secondNameController, profileModel?.secondName);
+    setIfNotNull(thirdNameController, profileModel?.thirdName);
+    setIfNotNull(lastNameController, profileModel?.lastName);
+    setIfNotNull(usernameController, profileModel?.username);
+    setIfNotNull(emailController, profileModel?.email);
+    setIfNotNull(mobileController, profileModel?.mobile);
+    setIfNotNull(proofController, profileModel?.proofNum);
+    setIfNotNull(birthdayController, profileModel?.birthday);
+    setIfNotNull(addressController, profileModel?.address);
+    gender = int.tryParse(profileModel?.gender ?? '') ?? 1;
+    socialSituation = int.tryParse(profileModel?.socialSituation ?? '') ?? 1;
+
+    nationality = profileModel?.nationalityId ?? 1 ;
+
+    countryCode = int.tryParse(profileModel?.contryCode ?? '') ?? 966;
   }
 
   Future<bool> toggleBiometric(bool value) async {
@@ -69,7 +121,48 @@ class ProfileCubit extends Cubit<ProfileState> {
       (r) {
         print("الملف الشخصي ${r.toJson()}");
         emit(GetProfilesSuc(profile: r));
+        profileModel = r ;
       },
+    );
+  }
+
+  void updateProfile(BuildContext context) async {
+    emit(UpdateProfileLoading());
+
+    final UpdateProfileRequest updateProfileRequest = UpdateProfileRequest(
+      id: profileModel?.id,
+      firstName: firstNameController.text,
+      secondName: secondNameController.text,
+      thirdName: thirdNameController.text,
+      lastName: lastNameController.text,
+      username: usernameController.text,
+      proofNum: proofController.text,
+      email: emailController.text,
+      mobile: int.tryParse(mobileController.text),
+      telephone: int.tryParse(mobileController.text),
+      contryCode: countryCode ,
+      birthday: birthdayController.text,
+      gender: gender,
+      socialSituation: socialSituation,
+      notes: notesController.text,
+      address: addressController.text,
+      nationalityId: nationality
+    );
+    
+    print("الريكوست ${updateProfileRequest.toJson()}");
+
+    final result = await profileUseCase.updateProfileRequest(updateProfileRequest);
+    
+    result.fold(
+        (l){
+          print("المشكله ${l.message}") ;
+          showAppSnackBarError(context: context, message: l.message);
+        },
+        (r){
+          showAppSnackBarSuc(context: context, message: "تم تحديث بيانتك");
+          print("حالة الطلب ${r}");
+
+        }
     );
   }
 }

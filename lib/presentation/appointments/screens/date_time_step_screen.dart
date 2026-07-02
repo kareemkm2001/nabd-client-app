@@ -4,6 +4,7 @@ import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
+import 'package:nabd_client_app/core/widgets/top_snackbar.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_cubit.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_state.dart';
 import 'package:nabd_client_app/presentation/appointments/screens/payment_step_screen.dart';
@@ -18,6 +19,14 @@ class DateTimeStepScreen extends StatefulWidget {
 }
 
 class _DateTimeStepScreenState extends State<DateTimeStepScreen> {
+
+  @override
+  void dispose() {
+    print("Dispose Called");
+    context.read<AppointmentsCubit>().selectedSlot = null;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final appointmentsCubit = context.read<AppointmentsCubit>();
@@ -56,6 +65,7 @@ class _DateTimeStepScreenState extends State<DateTimeStepScreen> {
                     curr is GetClinicTimesError ||
                     curr is PeriodSelectedState ||
                     curr is GetSlotsLoading ||
+                    curr is AppointmentsSlotSelectedState ||
                     curr is GetSlotsSuc,
                 builder: (context, state) {
                   if (state is GetClinicTimesLoading) {
@@ -150,44 +160,50 @@ class _DateTimeStepScreenState extends State<DateTimeStepScreen> {
                                     child: Wrap(
                                       spacing: 8,
                                       runSpacing: 8,
-                                      children: (appointmentsCubit.slots ?? [])
-                                          .map(
-                                            (slot) => GestureDetector(
-                                          onTap: () {
-                                          },
-                                          child: Container(
-                                            padding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: slot.appointment
-                                                  ? Colors.red
-                                                  .withOpacity(0.1)
-                                                  : AppColors.primary
-                                                  .withOpacity(0.1),
-                                              borderRadius:
-                                              BorderRadius.circular(20),
-                                              border: Border.all(
+                                      children: (appointmentsCubit.slots ?? []).map(
+                                            (slot) {
+                                          final isSelected = appointmentsCubit.selectedSlot == slot;
+
+                                          return GestureDetector(
+                                            onTap: () {
+                                              if (slot.appointment) return;
+
+                                              appointmentsCubit.selectSlot(slot);
+                                              print("المعاد ${slot.fromTime} - ${slot.toTime}");
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                                vertical: 6,
+                                              ),
+                                              decoration: BoxDecoration(
                                                 color: slot.appointment
-                                                    ? Colors.red
-                                                    : AppColors.primary,
+                                                    ? Colors.red.withOpacity(0.1)
+                                                    : isSelected
+                                                    ? AppColors.primary
+                                                    : AppColors.primary.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(20),
+                                                border: Border.all(
+                                                  color: slot.appointment
+                                                      ? Colors.red
+                                                      : AppColors.primary,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                "${slot.fromTime} - ${slot.toTime}",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: slot.appointment
+                                                      ? Colors.red
+                                                      : isSelected
+                                                      ? Colors.white
+                                                      : AppColors.primary,
+                                                ),
                                               ),
                                             ),
-                                            child: Text(
-                                              "${slot.fromTime} - ${slot.toTime}",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: slot.appointment
-                                                    ? Colors.red
-                                                    : AppColors.primary,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                          .toList(),
+                                          );
+                                        },
+                                      ).toList(),
                                     ),
                                   ),
 
@@ -204,6 +220,11 @@ class _DateTimeStepScreenState extends State<DateTimeStepScreen> {
                 margin: 0,
                 titleKey: "الذهاب الي الدفع",
                 onTap: () {
+                  if (appointmentsCubit.selectedSlot == null) {
+                    showAppSnackBarError(context: context, message: "اختر المعاد اولا");
+                    return;
+                  }
+
                   Navigator.push(
                     context,
                     AppRouteAnimation(

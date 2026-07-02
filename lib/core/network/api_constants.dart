@@ -12,6 +12,7 @@ class ApiConstants {
 
   // Profile
   static const String profile = "api/v1/profile" ;
+  static const String updateProfile = "api/v1/profile/update" ;
 
 
   // Invoices

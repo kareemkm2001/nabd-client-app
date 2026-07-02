@@ -86,53 +86,53 @@ class _PaymentStepScreenState extends State<PaymentStepScreen> {
 
                 const SizedBox(height: 30),
 
-                const Text(
-                  "ملخص الدفع",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-
+                if(appointmentsCubit.actionType != "subscription")
+                  const Text(
+                    "ملخص الدفع",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 const SizedBox(height: 12),
-
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
+                if(appointmentsCubit.actionType != "subscription")
+                  Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(.04),
+                            blurRadius: 10,
+                            offset: const Offset(0,3),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      _priceRow(
-                        title: "سعر الخدمة",
-                        value: "${appointmentsCubit.selectedPrice}",
-                      ),
+                      child: Column(
+                        children: [
+                          _priceRow(
+                            title: "سعر الخدمة",
+                            value: "${appointmentsCubit.selectedPrice}",
+                          ),
 
-                      const SizedBox(height: 12),
+                          const SizedBox(height: 12),
 
-                      _priceRow(
-                        title: "الضريبة",
-                        value: "${appointmentsCubit.getTaxAmount()}",
-                      ),
+                          _priceRow(
+                            title: "الضريبة",
+                            value: "${appointmentsCubit.getTaxAmount()}",
+                          ),
 
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Divider(),
-                      ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(),
+                          ),
 
-                      _priceRow(
-                        title: "الإجمالي",
-                        value: "${appointmentsCubit.getTotalPrice()} ريال",
-                        isTotal: true,
+                          _priceRow(
+                            title: "الإجمالي",
+                            value: "${appointmentsCubit.getTotalPrice()} ريال",
+                            isTotal: true,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
                 const SizedBox(height: 20),
                 AppButton(
                   margin: 8,

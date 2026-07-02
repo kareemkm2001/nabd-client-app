@@ -137,40 +137,76 @@ class _ServiceStepScreenState extends State<ServiceStepScreen> {
 
                                   const SizedBox(height: 8),
 
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: ChoiceChip(
-                                          backgroundColor: AppColors.secondary.withValues(alpha: 0.5),
-                                          surfaceTintColor: AppColors.secondary,
-                                          checkmarkColor: AppColors.surface,
-                                          selectedColor: AppColors.primary,
-                                          label:  Text("حضوري",style: TextStyle(color: AppColors.surface),),
-                                          selected: selectedType == 1,
-                                          onSelected: (_) {
-                                            appointmentsCubit.selectVisitType(
-                                                service.id, 1);
-                                          },
+                                  if (service.visitType == 1) ...[
+                                    Center(
+                                      child: ChoiceChip(
+                                        backgroundColor: AppColors.secondary.withValues(alpha: 0.5),
+                                        selectedColor: AppColors.primary,
+                                        checkmarkColor: AppColors.surface,
+                                        label: const Text("حضوري"),
+                                        labelStyle: const TextStyle(
+                                          color: Colors.white,
                                         ),
+                                        selected: true,
+                                        onSelected: null,
                                       ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: ChoiceChip(
-                                          disabledColor: AppColors.surface,
-                                          backgroundColor: AppColors.secondary.withValues(alpha: 0.5),
-                                          surfaceTintColor: AppColors.secondary,
-                                          checkmarkColor: AppColors.surface,
-                                          selectedColor: AppColors.primary,
-                                          label: const Text("أونلاين",style: TextStyle(color: AppColors.surface),),
-                                          selected: selectedType == 2,
-                                          onSelected: (_) {
-                                            appointmentsCubit.selectVisitType(
-                                                service.id, 2);
-                                          },
+                                    ),
+                                  ] else if (service.visitType == 2) ...[
+                                    Center(
+                                      child: ChoiceChip(
+                                        backgroundColor:
+                                        AppColors.secondary.withValues(alpha: 0.5),
+                                        selectedColor: AppColors.primary,
+                                        checkmarkColor: AppColors.surface,
+                                        label: const Text(
+                                          "أونلاين",
+                                          style: TextStyle(color: AppColors.surface),
                                         ),
+                                        selected: true,
+                                        onSelected: null,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ] else ...[
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ChoiceChip(
+                                            backgroundColor:
+                                            AppColors.secondary.withValues(alpha: 0.5),
+                                            selectedColor: AppColors.primary,
+                                            checkmarkColor: AppColors.surface,
+                                            label: const Text(
+                                              "حضوري",
+                                              style: TextStyle(color: AppColors.surface),
+                                            ),
+                                            selected: selectedType == 1,
+                                            onSelected: (_) {
+                                              appointmentsCubit.selectVisitType(service.id, 1);
+                                              print("النوع ${service.id}");
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: ChoiceChip(
+                                            backgroundColor:
+                                            AppColors.secondary.withValues(alpha: 0.5),
+                                            selectedColor: AppColors.primary,
+                                            checkmarkColor: AppColors.surface,
+                                            label: const Text(
+                                              "أونلاين",
+                                              style: TextStyle(color: AppColors.surface),
+                                            ),
+                                            selected: selectedType == 2,
+                                            onSelected: (_) {
+                                              appointmentsCubit.selectVisitType(service.id, 2);
+                                              print("النوع ${service.id}");
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                   AppButton(
                                       titleKey: "حدد معادك",
                                       onTap: (){

@@ -7,6 +7,7 @@ import 'package:nabd_client_app/core/network/api_constants.dart';
 import 'package:nabd_client_app/core/network/api_service.dart';
 import 'package:nabd_client_app/data/api/profile/profile_api.dart';
 import 'package:nabd_client_app/domain/models/profile/profile_model.dart';
+import 'package:nabd_client_app/domain/models/profile/update_profile_request.dart';
 
 class ProfileApiImpl implements ProfileApi {
 
@@ -28,6 +29,27 @@ class ProfileApiImpl implements ProfileApi {
       return Right(profile);
 
     }on DioException catch (e){
+      return Left(ErrorHandler.handle(e));
+    }catch (e){
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> updateProfileRequest(UpdateProfileRequest updateProfileRequest) async {
+    try {
+
+      final response = await api.patch(
+        ApiConstants.updateProfile,
+        data: updateProfileRequest.toJson(),
+      );
+
+      print("حلة الطلب من api ${response.statusCode}");
+
+      return Right(response.statusCode ?? 200);
+
+    }on DioException catch (e){
+      print("المشكلة" + e.response!.statusCode.toString());
       return Left(ErrorHandler.handle(e));
     }catch (e){
       return Left(ServerFailure(e.toString()));

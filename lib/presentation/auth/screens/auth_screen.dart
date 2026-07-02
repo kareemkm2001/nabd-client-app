@@ -8,6 +8,7 @@ import 'package:nabd_client_app/domain/models/auth/register_request_model.dart';
 
 import '../../../../core/localization/app_localization.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../terms_and_conditions/terms_page.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/phone_text_field.dart';
@@ -37,7 +38,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   late final Animation<double> _iconScale;
   late final Animation<double> _cardOpacity;
   late final Animation<Offset> _cardSlide;
-  String? _lastNavigatedFullPhone;
+
 
   @override
   void initState() {
@@ -227,13 +228,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                     style: AppTextStyles.mediumGrey,
                                   ),
                                   const SizedBox(height: 22),
-                                  _AuthModeFieldsSwitcher(
-                                    mode: state.mode,
-                                    firstNameController: _firstNameController,
-                                    lastNameController: _lastNameController,
-                                    onFirstNameChanged: _cubit.updateFirstName,
-                                    onLastNameChanged: _cubit.updateLastName,
-                                  ),
                                   const SizedBox(height: 16),
                                   PhoneTextField(
                                     titleKey: 'phone',
@@ -246,6 +240,13 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                         : AppLocalization.t('phone_number_hint'),
                                     onCountryChanged: _cubit.selectCountry,
                                     onChanged: _cubit.updatePhone,
+                                  ),
+                                  _AuthModeFieldsSwitcher(
+                                    mode: state.mode,
+                                    firstNameController: _firstNameController,
+                                    lastNameController: _lastNameController,
+                                    onFirstNameChanged: _cubit.updateFirstName,
+                                    onLastNameChanged: _cubit.updateLastName,
                                   ),
                                   if (inlineError != null) ...[
                                     const SizedBox(height: 8),
@@ -324,6 +325,8 @@ class AuthToggle extends StatelessWidget {
     required this.mode,
     required this.onModeSelected,
   });
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -411,8 +414,7 @@ class _ToggleTab extends StatelessWidget {
     );
   }
 }
-
-class _AuthModeFieldsSwitcher extends StatelessWidget {
+class _AuthModeFieldsSwitcher extends StatefulWidget {
   final AuthMode mode;
   final TextEditingController firstNameController;
   final TextEditingController lastNameController;
@@ -428,6 +430,14 @@ class _AuthModeFieldsSwitcher extends StatelessWidget {
   });
 
   @override
+  State<_AuthModeFieldsSwitcher> createState() =>
+      _AuthModeFieldsSwitcherState();
+}
+
+class _AuthModeFieldsSwitcherState extends State<_AuthModeFieldsSwitcher> {
+  bool isTermsAccepted = false;
+
+  @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 420),
@@ -435,8 +445,11 @@ class _AuthModeFieldsSwitcher extends StatelessWidget {
       switchInCurve: Curves.easeOutCubic,
       switchOutCurve: Curves.easeInCubic,
       transitionBuilder: (child, animation) {
-        final isRegisterContent = child.key == const ValueKey('register-fields');
+        final isRegisterContent =
+            child.key == const ValueKey('register-fields');
+
         final beginX = isRegisterContent ? 0.1 : -0.1;
+
         return FadeTransition(
           opacity: animation,
           child: SlideTransition(
@@ -448,28 +461,80 @@ class _AuthModeFieldsSwitcher extends StatelessWidget {
           ),
         );
       },
-      child: mode == AuthMode.login
+      child: widget.mode == AuthMode.login
           ? const SizedBox(key: ValueKey('login-empty'))
           : Column(
-              key: const ValueKey('register-fields'),
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AppTextField(
-                  titleKey: 'first_name',
-                  controller: firstNameController,
-                  margin: 16,
-                  keyboardType: TextInputType.name,
-                  onChanged: onFirstNameChanged,
+        key: const ValueKey('register-fields'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppTextField(
+            titleKey: 'first_name',
+            controller: widget.firstNameController,
+            margin: 16,
+            keyboardType: TextInputType.name,
+            onChanged: widget.onFirstNameChanged,
+          ),
+
+          AppTextField(
+            titleKey: 'last_name',
+            controller: widget.lastNameController,
+            margin: 16,
+            keyboardType: TextInputType.name,
+            onChanged: widget.onLastNameChanged,
+          ),
+
+          const SizedBox(height: 8),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Checkbox(
+                value: isTermsAccepted,
+                onChanged: (value) {
+                  setState(() {
+                    isTermsAccepted = value ?? false;
+                  });
+                },
+              ),
+
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Wrap(
+                    children: [
+                      const Text(
+                        "أنا أوافق على ",
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const TermsPage(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "الشروط والأحكام",
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                AppTextField(
-                  titleKey: 'last_name',
-                  controller: lastNameController,
-                  margin: 16,
-                  keyboardType: TextInputType.name,
-                  onChanged: onLastNameChanged,
-                ),
-              ],
-            ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

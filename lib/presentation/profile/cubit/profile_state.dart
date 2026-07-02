@@ -20,3 +20,10 @@ class GetProfileError extends ProfileState {
 }
 
 class ProfileSettingsLoaded extends ProfileState {}
+
+class UpdateProfileLoading extends ProfileState {}
+class UpdateProfileError extends ProfileState {
+  final String errorMsg ;
+  UpdateProfileError({required this.errorMsg}) ;
+}
+class UpdateProfileSuc extends ProfileState {}

@@ -36,11 +36,16 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
   int? selectedPackageId ;
   int? taxInfo ;
   double? selectedPrice ;
-  int? selectedSlotId ;
+  SlotModel? selectedSlot;
 
   Map<int, int> serviceVisitType = {};
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  void selectSlot(SlotModel slot) {
+    selectedSlot = slot;
+    emit(AppointmentsSlotSelectedState());
+  }
 
   void selectClinic(int clinicId) {
     selectedClinicId = clinicId;
@@ -53,11 +58,6 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
     emit(PeriodSelectedState());
 
     getSlots(id);
-  }
-
-  void selectSlot(int id) {
-    selectedSlotId = id;
-    emit(SlotSelectedState());
   }
 
 
@@ -100,6 +100,7 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
     print("رقم الميثود $selectedPaymentMethod");
     emit(PaymentMethodChangedState());
   }
+
 
   void resetAppointmentDataSelection() {
     selectedClinicId = null;
@@ -227,6 +228,7 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
 
     result.fold(
         (l){
+          packagesClinic = [] ;
           emit(GetClinicPackagesError(errorMsg: l.message));
         },
         (r){

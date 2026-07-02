@@ -45,7 +45,7 @@ class _PackageStepScreenState extends State<PackageStepScreen> {
 
           if (packages?.isEmpty ?? false) {
             return const Center(
-              child: Text("لا توجد باقات متاحة"),
+              child: Text("لا توجد اشتراكات متاحة"),
             );
           }
 

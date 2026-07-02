@@ -87,4 +87,51 @@ class SubscriptionModel{
       serviceName: json['service']?['name'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'package_id': packageId,
+      'user_id': userId,
+      'clinic_id': clinicId,
+      'service_id': serviceId,
+
+      'status': status,
+      'status_color': statusColor,
+
+      'invoice_status': invoiceStatus,
+      'invoice_status_color': invoiceStatusColor,
+
+      'price': price,
+
+      'number_of_sessions': numberOfSessions,
+      'completed_sessions': completedSessions,
+      'remaining_sessions': remainingSessions,
+
+      'start_date': startDate,
+      'end_date': endDate,
+      'notes': notes,
+      'created_at': createdAt,
+
+      /// nested structure (reverse of fromJson)
+      'profile': {
+        'full_name': userName,
+      },
+
+      'clinic': {
+        'name': clinicName,
+        'doctor': {
+          'full_name': doctorName,
+        }
+      },
+
+      'package': {
+        'name': packageName,
+      },
+
+      'service': {
+        'name': serviceName,
+      },
+    };
+  }
 }

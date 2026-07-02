@@ -55,6 +55,7 @@ class PaymentMethodChangedState extends AppointmentsState {}
 class AppointmentsDateSelected extends AppointmentsState {}
 class PeriodSelectedState extends AppointmentsState {}
 class PackageSelectedState extends AppointmentsState {}
+class AppointmentsSlotSelectedState extends AppointmentsState {}
 
 class GetClinicServicesByIdSuc extends AppointmentsState {}
 
