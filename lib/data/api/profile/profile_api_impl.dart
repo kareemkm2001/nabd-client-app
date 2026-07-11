@@ -7,6 +7,7 @@ import 'package:nabd_client_app/core/network/api_constants.dart';
 import 'package:nabd_client_app/core/network/api_service.dart';
 import 'package:nabd_client_app/data/api/profile/profile_api.dart';
 import 'package:nabd_client_app/domain/models/profile/profile_model.dart';
+import 'package:nabd_client_app/domain/models/profile/sub_user_model.dart';
 import 'package:nabd_client_app/domain/models/profile/update_profile_request.dart';
 
 class ProfileApiImpl implements ProfileApi {
@@ -39,7 +40,7 @@ class ProfileApiImpl implements ProfileApi {
   Future<Either<Failure, int>> updateProfileRequest(UpdateProfileRequest updateProfileRequest) async {
     try {
 
-      final response = await api.patch(
+      final response = await api.put(
         ApiConstants.updateProfile,
         data: updateProfileRequest.toJson(),
       );
@@ -49,7 +50,23 @@ class ProfileApiImpl implements ProfileApi {
       return Right(response.statusCode ?? 200);
 
     }on DioException catch (e){
-      print("المشكلة" + e.response!.statusCode.toString());
+      return Left(ErrorHandler.handle(e));
+    }catch (e){
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<SubUserModel>>> getSubUsers() async {
+    try {
+
+      final response = await api.get(ApiConstants.subUsers);
+
+      final subUsers = SubUserModel.fromJsonList(response.data["data"]);
+
+      return Right(subUsers);
+
+    }on DioException catch (e){
       return Left(ErrorHandler.handle(e));
     }catch (e){
       return Left(ServerFailure(e.toString()));

@@ -1,28 +1,38 @@
 import 'dart:io';
+
 import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 
 class FileDownloader {
-  static Future<void> downloadPdf(String url, String fileName) async {
+  static Future<void> downloadPdf({
+    required String url,
+    required String fileName,
+    String? token,
+  }) async {
     try {
-      if (Platform.isAndroid) {
-        await Permission.storage.request();
-      }
-
-      final dir = await getApplicationDocumentsDirectory();
+      final dir = await getTemporaryDirectory();
 
       final filePath = "${dir.path}/$fileName.pdf";
 
-      await Dio().download(url, filePath);
-
-      print("Downloaded to: $filePath");
+      await Dio().download(
+        url,
+        filePath,
+        options: Options(
+          headers: token == null
+              ? null
+              : {
+            "Authorization": "Bearer $token",
+          },
+        ),
+      );
 
       await OpenFile.open(filePath);
-
+    } on DioException catch (e) {
+      print(e.response?.data);
+      print(e.message);
     } catch (e) {
-      print("مشكلة التحميل: $e");
+      print(e);
     }
   }
 }

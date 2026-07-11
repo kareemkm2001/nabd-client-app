@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
+import 'package:nabd_client_app/core/widgets/top_snackbar.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
 
 import '../widgets/app_country_code_field.dart';
@@ -67,7 +68,7 @@ class _UpdateProfileScreen extends State<UpdateProfileScreen> {
                         icon: Icons.person_outline,
                       ),
 
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 10),
 
                       AppTextField(
                         controller: profileCubit.secondNameController,
@@ -75,7 +76,7 @@ class _UpdateProfileScreen extends State<UpdateProfileScreen> {
                         icon: Icons.person_outline,
                       ),
 
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 10),
 
                       AppTextField(
                         controller: profileCubit.thirdNameController,
@@ -83,7 +84,7 @@ class _UpdateProfileScreen extends State<UpdateProfileScreen> {
                         icon: Icons.person_outline,
                       ),
 
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 10),
 
                       AppTextField(
                         controller: profileCubit.lastNameController,
@@ -91,7 +92,15 @@ class _UpdateProfileScreen extends State<UpdateProfileScreen> {
                         icon: Icons.person_outline,
                       ),
 
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 10),
+
+                      AppTextField(
+                        controller: profileCubit.fullNameEnController,
+                        title: "الاسم كامل بالانجليزي",
+                        icon: Icons.person_outline,
+                      ),
+
+                      const SizedBox(height: 10),
 
                       AppTextField(
                         controller: profileCubit.usernameController,
@@ -99,7 +108,7 @@ class _UpdateProfileScreen extends State<UpdateProfileScreen> {
                         icon: Icons.alternate_email,
                       ),
 
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 10),
 
                       AppTextField(
                         controller: profileCubit.emailController,
@@ -147,7 +156,7 @@ class _UpdateProfileScreen extends State<UpdateProfileScreen> {
                             child: AppTextField(
                               title: "رقم الهاتف",
                               controller: profileCubit.mobileController,
-                              icon: Icons.phone_outlined,
+                              icon: Icons.mobile_friendly_sharp,
                               keyboardType: TextInputType.phone,
                             ),
                           ),
@@ -155,6 +164,21 @@ class _UpdateProfileScreen extends State<UpdateProfileScreen> {
                       ),
 
                       const SizedBox(height: 15),
+
+                      AppTextField(
+                        controller: profileCubit.telephoneController,
+                        title: "التليفون",
+                        keyboardType: TextInputType.number,
+                        icon: Icons.phone,
+                        minLength: 9,
+                        maxLength: 9,
+                        validator: (value) {
+                          if (value == null || value.length != 9) {
+                            return "رقم التليفون غير صحيح";
+                          }
+                          return null;
+                        },
+                      ),
 
                       AppTextField(
                         controller: profileCubit.proofController,
@@ -340,6 +364,8 @@ class _UpdateProfileScreen extends State<UpdateProfileScreen> {
                         FocusScope.of(context).unfocus();
 
                         profileCubit.updateProfile(context);
+                      }else {
+                        showAppSnackBarError(context: context, message: "البيانات غير صحيحة");
                       }
                     }
                 ),

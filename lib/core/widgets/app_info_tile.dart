@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
-import 'package:nabd_client_app/core/theme/app_text_styles.dart';
-import 'package:nabd_client_app/core/widgets/app_text.dart';
 
 class InfoDialog extends StatelessWidget {
   final String title;
@@ -47,6 +45,7 @@ class InfoDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: AppColors.background,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),

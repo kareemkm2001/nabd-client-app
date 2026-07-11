@@ -21,13 +21,6 @@ class DateTimeStepScreen extends StatefulWidget {
 class _DateTimeStepScreenState extends State<DateTimeStepScreen> {
 
   @override
-  void dispose() {
-    print("Dispose Called");
-    context.read<AppointmentsCubit>().selectedSlot = null;
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final appointmentsCubit = context.read<AppointmentsCubit>();
 
@@ -160,50 +153,57 @@ class _DateTimeStepScreenState extends State<DateTimeStepScreen> {
                                     child: Wrap(
                                       spacing: 8,
                                       runSpacing: 8,
-                                      children: (appointmentsCubit.slots ?? []).map(
-                                            (slot) {
-                                          final isSelected = appointmentsCubit.selectedSlot == slot;
+                                      children: (appointmentsCubit.slots ?? [])
+                                          .asMap()
+                                          .entries
+                                          .map((entry) {
+                                        final index = entry.key;
+                                        final slot = entry.value;
 
-                                          return GestureDetector(
-                                            onTap: () {
-                                              if (slot.appointment) return;
+                                        final isSelected = appointmentsCubit.selectedSlot == slot;
 
-                                              appointmentsCubit.selectSlot(slot);
-                                              print("المعاد ${slot.fromTime} - ${slot.toTime}");
-                                            },
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 6,
-                                              ),
-                                              decoration: BoxDecoration(
+                                        return GestureDetector(
+                                          onTap: () {
+                                            if (slot.appointment) return;
+
+                                            appointmentsCubit.selectSlot(slot);
+                                            appointmentsCubit.selectedSlotIndex = index;
+
+                                            print("Index: $index");
+                                            print("المعاد ${slot.fromTime} - ${slot.toTime}");
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: slot.appointment
+                                                  ? Colors.red.withOpacity(0.1)
+                                                  : isSelected
+                                                  ? AppColors.primary
+                                                  : AppColors.primary.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(20),
+                                              border: Border.all(
                                                 color: slot.appointment
-                                                    ? Colors.red.withOpacity(0.1)
-                                                    : isSelected
-                                                    ? AppColors.primary
-                                                    : AppColors.primary.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(20),
-                                                border: Border.all(
-                                                  color: slot.appointment
-                                                      ? Colors.red
-                                                      : AppColors.primary,
-                                                ),
-                                              ),
-                                              child: Text(
-                                                "${slot.fromTime} - ${slot.toTime}",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: slot.appointment
-                                                      ? Colors.red
-                                                      : isSelected
-                                                      ? Colors.white
-                                                      : AppColors.primary,
-                                                ),
+                                                    ? Colors.red
+                                                    : AppColors.primary,
                                               ),
                                             ),
-                                          );
-                                        },
-                                      ).toList(),
+                                            child: Text(
+                                              "${slot.fromTime} - ${slot.toTime}",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: slot.appointment
+                                                    ? Colors.red
+                                                    : isSelected
+                                                    ? Colors.white
+                                                    : AppColors.primary,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
                                     ),
                                   ),
 

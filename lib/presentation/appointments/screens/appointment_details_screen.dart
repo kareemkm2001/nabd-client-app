@@ -387,10 +387,7 @@ class _AppointmentDetailsScreenState extends State<AppointmentDetailsScreen> {
       return InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: () {
-          FileDownloader.downloadPdf(
-            file.attachment,
-            file.fileName,
-          );
+
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),

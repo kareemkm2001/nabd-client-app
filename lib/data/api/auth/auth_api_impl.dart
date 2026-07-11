@@ -55,6 +55,8 @@ class AuthApiImpl implements AuthApi {
           ApiConstants.loginOTPVerify,
           data: verifyOtpRequestModel.toJson()
       );
+      
+      print("حالة الطلب ${response.statusCode}");
 
       final model = VerifyOtpResponseModel.fromJson(response.data);
 

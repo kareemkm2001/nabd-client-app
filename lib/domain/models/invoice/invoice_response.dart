@@ -21,6 +21,8 @@ class InvoiceModel {
   final String createdAt;
   final String insurance;
 
+  final String pdfLink ;
+
   InvoiceModel({
     required this.id,
     required this.invoiceId,
@@ -37,6 +39,7 @@ class InvoiceModel {
     required this.totalAmount,
     required this.createdAt,
     required this.insurance,
+    required this.pdfLink
   });
 
   factory InvoiceModel.fromJson(Map<String, dynamic> json) {
@@ -64,6 +67,7 @@ class InvoiceModel {
 
       createdAt: json['created_at'] ?? '',
       insurance: json['insurance'] ?? '',
+      pdfLink: json["pdf_link"] ?? '',
     );
   }
 }

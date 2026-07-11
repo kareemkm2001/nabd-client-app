@@ -89,5 +89,12 @@ class GetClinicPackagesError extends AppointmentsState{
 
 class GetTaxIngoLoaded extends AppointmentsState {}
 
+class CreateNormalAppointmentLoading extends AppointmentsState {}
+class CreateNormalAppointmentError extends AppointmentsState {
+  final String errorMsg ;
+  CreateNormalAppointmentError({required this.errorMsg});
+}
+class CreateNormalAppointmentSuc extends AppointmentsState {}
+
 
 

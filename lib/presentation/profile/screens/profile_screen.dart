@@ -10,6 +10,7 @@ import 'package:nabd_client_app/presentation/invoices/screens/invoice_screen.dar
 import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_state.dart';
 import 'package:nabd_client_app/presentation/profile/screens/profile_detail_screen.dart';
+import 'package:nabd_client_app/presentation/profile/screens/sub_users_screen.dart';
 import 'package:nabd_client_app/presentation/terms_and_conditions/terms_page.dart';
 
 import '../../../../core/localization/app_localization.dart';
@@ -144,12 +145,16 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () {},
                   ),
 
-                 /* MoreMenuItem(
+                 MoreMenuItem(
                     icon: Icons.people,
                     title: AppLocalization.t('التابعين'),
                     color: Colors.cyan,
-                    onTap: () {},
-                  ),*/
+                    onTap: () {
+                      Navigator.push(context, AppRouteAnimation(page: SubUsersScreen())).then((_){
+                        context.read<ProfileCubit>().resetState();
+                      });
+                    },
+                  ),
 
                   MoreMenuItem(
                     icon: Icons.notifications_active,

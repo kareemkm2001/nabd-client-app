@@ -71,6 +71,15 @@ class AuthState {
 }
 
 class RequestOTPLoading extends AuthState {}
+class LoginLoading extends AuthState {}
+class LoginError extends AuthState {
+  final String errorMsg ;
+  LoginError({required this.errorMsg});
+}
+class LoginSuc extends AuthState {
+  final String sucMsg ;
+  LoginSuc({required this.sucMsg});
+}
 
 class RequestOTPError extends AuthState {
   final String errorMsg ;

@@ -1,3 +1,5 @@
+import 'package:nabd_client_app/domain/models/profile/sub_user_model.dart';
+
 import '../../../domain/models/profile/profile_model.dart';
 
 class ProfileState {}
@@ -27,3 +29,14 @@ class UpdateProfileError extends ProfileState {
   UpdateProfileError({required this.errorMsg}) ;
 }
 class UpdateProfileSuc extends ProfileState {}
+
+class GetSubUsersLoading extends ProfileState {}
+class GetSubUsersError extends ProfileState {
+  final String errorMsg ;
+  GetSubUsersError({required this.errorMsg});
+
+}
+class GetSubUsersSuc extends ProfileState {
+  final List<SubUserModel> subUsers ;
+  GetSubUsersSuc({required this.subUsers});
+}

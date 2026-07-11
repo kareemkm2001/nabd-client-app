@@ -21,6 +21,7 @@ class InvoicesCubit  extends Cubit<InvoicesState>{
           emit(GetInvoicesError(errorMsg: l.message));
         },
         (r){
+          print("الداتا ${r[0]}");
           emit(GetInvoicesSuc(invoices: r));
         }
     );

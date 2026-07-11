@@ -13,6 +13,7 @@ class ApiConstants {
   // Profile
   static const String profile = "api/v1/profile" ;
   static const String updateProfile = "api/v1/profile/update" ;
+  static const String subUsers = "api/v1/users" ;
 
 
   // Invoices
@@ -29,5 +30,6 @@ class ApiConstants {
   static const String slots  = "api/v1/filters/service_availableTime" ;
   static const String packagesClinic  = "api/v1/filters/clinic_packages" ;
   static const String taxInfo  = "api/v1/filters/patient-tax-info" ;
+  static const String createNormalAppointment  = "api/v1/appointments/create/normal" ;
 
 }

@@ -7,6 +7,8 @@ import '../models/appointment/AppointmentClinicServisesModel.dart';
 import '../models/appointment/appointment_data_model.dart';
 import '../models/appointment/clinic_times_response.dart';
 import '../models/appointment/clinics_res_model.dart';
+import '../models/appointment/create_normal_appointment_request.dart';
+import '../models/appointment/create_normal_appointment_response.dart';
 import '../models/appointment/package_for_clinic_model.dart';
 import '../models/appointment/slot_model.dart';
 
@@ -46,5 +48,9 @@ class AppointmentUseCase {
 
   Future<Either<Failure, String>> getTaxInfo() async {
     return await appointmentsApi.getTaxInfo();
+  }
+
+  Future<Either<Failure,CreateNormalAppointmentResponse>> createNormalAppointment(CreateNormalAppointmentRequest createNormalAppointmentRequest) async {
+    return await appointmentsApi.createNormalAppointment(createNormalAppointmentRequest);
   }
 }

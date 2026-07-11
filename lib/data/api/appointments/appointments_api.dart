@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:nabd_client_app/core/error/failures.dart';
 import 'package:nabd_client_app/domain/models/appointment/appointment_model.dart';
 import 'package:nabd_client_app/domain/models/appointment/clinics_res_model.dart';
+import 'package:nabd_client_app/domain/models/appointment/create_normal_appointment_request.dart';
+import 'package:nabd_client_app/domain/models/appointment/create_normal_appointment_response.dart';
 import 'package:nabd_client_app/domain/models/appointment/slot_model.dart';
 
 import '../../../domain/models/appointment/AppointmentClinicServisesModel.dart';
@@ -29,5 +31,6 @@ abstract class AppointmentsApi {
 
   Future<Either<Failure,String>> getTaxInfo() ;
 
+  Future<Either<Failure,CreateNormalAppointmentResponse>> createNormalAppointment(CreateNormalAppointmentRequest createNormalAppointmentRequest) ;
 
 }

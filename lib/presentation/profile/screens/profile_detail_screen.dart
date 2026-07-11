@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/widgets/app_app_bar.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
+import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_state.dart';
+import 'package:nabd_client_app/presentation/profile/screens/update_profile_screen.dart';
 
 import '../../../core/extensions/date_format.dart';
 import '../../../core/helper/avatar_helper.dart';
@@ -135,7 +137,10 @@ class ProfileDetailScreen extends StatelessWidget {
             ),
             AppButton(
               onTap: (){
-
+                Navigator.push(
+                    context,
+                    AppRouteAnimation(page: UpdateProfileScreen())
+                );
               },
               titleKey: "تعديل",
               margin: 16,

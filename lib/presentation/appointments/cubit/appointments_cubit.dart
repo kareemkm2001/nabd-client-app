@@ -1,11 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
+import 'package:nabd_client_app/core/widgets/top_snackbar.dart';
 import 'package:nabd_client_app/domain/models/appointment/appointment_data_model.dart';
 import 'package:nabd_client_app/domain/models/appointment/appointment_model.dart';
 import 'package:nabd_client_app/domain/models/appointment/clinic_times_response.dart';
+import 'package:nabd_client_app/domain/models/appointment/create_normal_appointment_request.dart';
 import 'package:nabd_client_app/domain/models/appointment/slot_model.dart';
 import 'package:nabd_client_app/domain/usecases/appointment_use_case.dart';
 import 'package:nabd_client_app/presentation/appointments/cubit/appointments_state.dart';
+import 'package:nabd_client_app/presentation/appointments/screens/payment_view_screen.dart';
+import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
 import '../../../domain/models/appointment/AppointmentClinicServisesModel.dart';
 import '../../../domain/models/appointment/clinics_res_model.dart';
 import '../../../domain/models/appointment/package_for_clinic_model.dart';
@@ -37,6 +43,8 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
   int? taxInfo ;
   double? selectedPrice ;
   SlotModel? selectedSlot;
+  int? selectedVisitTypeId ;
+  int? selectedSlotIndex ;
 
   Map<int, int> serviceVisitType = {};
 
@@ -71,6 +79,7 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
 
   void selectVisitType(int serviceId, int type) {
     serviceVisitType[serviceId] = type;
+    selectedVisitTypeId = type ;
     emit(ServiceVisitTypeChanged());
   }
 
@@ -249,6 +258,39 @@ class AppointmentsCubit  extends Cubit<AppointmentsState>{
         (r){
           taxInfo = int.tryParse(r);
           emit(GetTaxIngoLoaded());
+        }
+    );
+  }
+
+  void createNormalAppointment(BuildContext context) async {
+    emit(CreateNormalAppointmentLoading());
+
+    CreateNormalAppointmentRequest createNormalAppointmentRequest = CreateNormalAppointmentRequest(
+        userId: context.read<ProfileCubit>().profileModel?.id ?? 0,
+        clinicId: selectedClinicId ?? 0,
+        serviceId: selectedServiceId ?? 0,
+        date: selectedDateString,
+        availableTime: selectedPeriodId ?? 0,
+        availableSlot: selectedSlotIndex ?? 0,
+        fromTime: slots?.map((e) => e.fromTime).toList() ?? [],
+        toTime: slots?.map((e) => e.toTime).toList() ?? [],
+        appointmentType: selectedVisitTypeId ?? 0,
+        type: selectedVisitTypeId ?? 0,
+        paymentMethod: selectedPaymentMethod ?? 4
+    );
+
+    print("شكل الطلب ${createNormalAppointmentRequest.toJson()}");
+    final result = await appointmentUseCase.createNormalAppointment(createNormalAppointmentRequest);
+    
+    result.fold(
+        (l){
+          emit(CreateNormalAppointmentError(errorMsg: l.message));
+          showAppSnackBarError(context: context, message: l.message);
+        },
+        (r){
+          emit(CreateNormalAppointmentSuc());
+          showAppSnackBarSuc(context: context, message: "يرجي الدفع لتاكيد الحجز");
+          Navigator.push(context, AppRouteAnimation(page: PaymentViewScreen(paymentUrl: r.transactionUrl)));
         }
     );
   }

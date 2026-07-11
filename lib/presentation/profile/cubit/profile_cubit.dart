@@ -26,6 +26,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   final secondNameController = TextEditingController();
   final thirdNameController = TextEditingController();
   final lastNameController = TextEditingController();
+  final fullNameEnController = TextEditingController();
 
   final usernameController = TextEditingController();
   final emailController = TextEditingController();
@@ -33,6 +34,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   final mobileController = TextEditingController();
   final countryCodeController = TextEditingController();
   final proofController = TextEditingController();
+  final telephoneController = TextEditingController();
 
   final birthdayController = TextEditingController();
 
@@ -59,6 +61,10 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
+  void resetState() {
+    emit(ProfileInitial());
+  }
+
   void fillController() {
     setIfNotNull(firstNameController, profileModel?.firstName);
     setIfNotNull(secondNameController, profileModel?.secondName);
@@ -66,6 +72,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     setIfNotNull(lastNameController, profileModel?.lastName);
     setIfNotNull(usernameController, profileModel?.username);
     setIfNotNull(emailController, profileModel?.email);
+    setIfNotNull(fullNameEnController, profileModel?.fullNameEn);
+    setIfNotNull(telephoneController, profileModel?.telephone);
     setIfNotNull(mobileController, profileModel?.mobile);
     setIfNotNull(proofController, profileModel?.proofNum);
     setIfNotNull(birthdayController, profileModel?.birthday);
@@ -136,10 +144,11 @@ class ProfileCubit extends Cubit<ProfileState> {
       thirdName: thirdNameController.text,
       lastName: lastNameController.text,
       username: usernameController.text,
+      fullNameEn: fullNameEnController.text,
       proofNum: proofController.text,
       email: emailController.text,
       mobile: int.tryParse(mobileController.text),
-      telephone: int.tryParse(mobileController.text),
+      telephone: int.tryParse(telephoneController.text),
       contryCode: countryCode ,
       birthday: birthdayController.text,
       gender: gender,
@@ -161,8 +170,26 @@ class ProfileCubit extends Cubit<ProfileState> {
         (r){
           showAppSnackBarSuc(context: context, message: "تم تحديث بيانتك");
           print("حالة الطلب ${r}");
+          getProfile();
+          Navigator.pop(context);
 
         }
     );
+  }
+
+  void getSubUsers() async {
+    emit(GetSubUsersLoading());
+
+    final result = await profileUseCase.getSubUsers();
+    
+    result.fold(
+        (l){
+          emit(GetSubUsersError(errorMsg: l.message));
+        },
+        (r){
+          emit(GetSubUsersSuc(subUsers: r));
+        }
+    );
+
   }
 }

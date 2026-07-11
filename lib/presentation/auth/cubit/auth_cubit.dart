@@ -38,6 +38,18 @@ class AuthCubit extends Cubit<AuthState> {
     ));
   }
 
+  final phoneController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final countryCodeController = TextEditingController();
+
+  int countryCode = 966 ;
+  String? phoneNum ;
+
+  String otpCode = "" ;
+
+  bool isTermsAccepted = false;
+
   void updateFirstName(String value) {
     emit(state.copyWith(firstName: value.trim(), errorMessage: null));
   }
@@ -157,38 +169,27 @@ class AuthCubit extends Cubit<AuthState> {
     result.fold(
             (l) {
               emit(RequestOTPError(errorMsg: l.message));
-              showAppSnackBarError(
-                  context: context,
-                  message: l.message
-              );
             },
             (r) {
               emit(RequestOtpSuc(sucMsg: r.message ?? ""));
-              showAppSnackBarSuc(
-                  context: context,
-                  message: r.message ?? ""
-              );
-              Navigator.push(context, AppRouteAnimation(page: OtpScreen(phoneNumber: mobile)));
             }
     );
   }
 
-  void login({required BuildContext context , required VerifyOtpRequestModel verifyOtpRequestModel}) async {
+  void login({required VerifyOtpRequestModel verifyOtpRequestModel}) async {
+
+    print("جسم الطلب ${verifyOtpRequestModel.toJson()}");
+    emit(LoginLoading());
     final result = await authUseCase.login(verifyOtpRequestModel);
     
     result.fold(
         (l){
-          showAppSnackBarError(
-              context: context,
-              message: l.message
-          );
-        }, (r)async {
-          await LocalNotificationService.show(title: "أهلًا بك في التطبيق 👋", body: "تم تسجيل الدخول بنجاح، نتمنى لك تجربة مميزة");
-      showAppSnackBarSuc(
-          context: context,
-          message: r.message ?? ""
-      );
-      Navigator.push(context, AppRouteAnimation(page: MainScreen()));
+          print("الفن فشلت");
+          emit(LoginError(errorMsg: l.message));
+
+        }, (r) {
+          print("الفن نجحت");
+          emit(LoginSuc(sucMsg: r.message ?? ""));
         }
     );
   }

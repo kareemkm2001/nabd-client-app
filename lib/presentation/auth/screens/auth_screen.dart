@@ -5,13 +5,17 @@ import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_button.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
 import 'package:nabd_client_app/domain/models/auth/register_request_model.dart';
+import 'package:nabd_client_app/presentation/profile/widgets/app_text_field.dart';
 
 import '../../../../core/localization/app_localization.dart';
-import '../../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/app_route_animation.dart';
+import '../../../core/widgets/loading_overlay.dart';
+import '../../../core/widgets/top_snackbar.dart';
+import '../../profile/widgets/app_country_code_field.dart';
 import '../../terms_and_conditions/terms_page.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
-import '../widgets/phone_text_field.dart';
+import 'otp_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   final AuthMode initialMode;
@@ -28,11 +32,7 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
-  final _phoneController = TextEditingController();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
 
-  late final AuthCubit _cubit;
   late final AnimationController _entryController;
   late final Animation<double> _iconOpacity;
   late final Animation<double> _iconScale;
@@ -43,14 +43,14 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _cubit = context.read<AuthCubit>();
+    final cubit = context.read<AuthCubit>();
 
     // Set initial values from widget parameters
     if (widget.initialMode != AuthMode.login) {
-      _cubit.changeAuthMode(widget.initialMode);
+      cubit.changeAuthMode(widget.initialMode);
     }
     if (widget.initialPhoneNumber != null) {
-      _cubit.updatePhone(widget.initialPhoneNumber!);
+      cubit.updatePhone(widget.initialPhoneNumber!);
     }
 
     _entryController = AnimationController(
@@ -83,232 +83,278 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     _entryController.forward();
   }
 
-
-  @override
-  void dispose() {
-    _entryController.dispose();
-    _phoneController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthCubit>.value(
-      value: _cubit,
-      child: BlocListener<AuthCubit, AuthState>(
-        listener: (context, state) {
-          // Sync controllers with state for fields that might be modified (e.g., normalization)
-          if (_phoneController.text != state.phone) {
-            _phoneController.value = TextEditingValue(
-              text: state.phone,
-              selection: TextSelection.collapsed(offset: state.phone.length),
-            );
-          }
-        },
-        child: BlocBuilder<AuthCubit, AuthState>(
-          builder: (context, state) {
-            var isLoading = state.isLoading;
-            final isSaudi = state.selectedCountry.dialCode == '+966';
-            final String? inlineError = (state.errorMessage != null &&
-                    state.errorMessage != state.phoneErrorMessage)
-                ? state.errorMessage
-                : null;
+    final authCubit = context.read<AuthCubit>() ;
+    return BlocListener<AuthCubit,AuthState>(
+      listener: (context, state) {
+        if (state is RequestOTPLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const LoadingOverlay(),
+          );
+        }
 
-            return Scaffold(
-              backgroundColor: AppColors.background,
-              appBar: null,
-              body: SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 520),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(height: 24),
-                        FadeTransition(
-                          opacity: _iconOpacity,
-                          child: ScaleTransition(
-                            scale: _iconScale,
-                            child: Center(
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 420),
-                                switchInCurve: Curves.easeInOut,
-                                switchOutCurve: Curves.easeInOut,
-                                transitionBuilder: (child, animation) {
-                                  final slide = Tween<Offset>(
-                                    begin: const Offset(0, 0.03),
-                                    end: Offset.zero,
-                                  ).animate(
-                                    CurvedAnimation(
-                                      parent: animation,
-                                      curve: Curves.easeInOut,
-                                    ),
-                                  );
-                                  final scale = Tween<double>(
-                                    begin: 0.92,
-                                    end: 1.0,
-                                  ).animate(
-                                    CurvedAnimation(
-                                      parent: animation,
-                                      curve: Curves.easeInOutBack,
-                                    ),
-                                  );
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: SlideTransition(
-                                      position: slide,
-                                      child: ScaleTransition(
-                                        scale: scale,
-                                        child: child,
+        if (state is RequestOtpSuc) {
+          Navigator.of(context, rootNavigator: true).pop();
+
+          showAppSnackBarSuc(
+            context: context,
+            message: state.sucMsg,
+          );
+
+          Navigator.push(
+            context,
+            AppRouteAnimation(
+              page: OtpScreen(),
+            ),
+          );
+        }
+
+        if (state is RequestOTPError) {
+          Navigator.of(context, rootNavigator: true).pop();
+
+          showAppSnackBarError(
+            context: context,
+            message: state.errorMsg,
+          );
+        }
+      },
+      child: BlocProvider<AuthCubit>.value(
+        value: authCubit,
+        child: BlocListener<AuthCubit, AuthState>(
+          listener: (context, state) {
+            // Sync controllers with state for fields that might be modified (e.g., normalization)
+            if (authCubit.phoneController.text != state.phone) {
+              authCubit.phoneController.value = TextEditingValue(
+                text: state.phone,
+                selection: TextSelection.collapsed(offset: state.phone.length),
+              );
+            }
+          },
+          child: BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, state) {
+              var isLoading = state.isLoading;
+              final isSaudi = state.selectedCountry.dialCode == '+966';
+              final String? inlineError = (state.errorMessage != null &&
+                      state.errorMessage != state.phoneErrorMessage)
+                  ? state.errorMessage
+                  : null;
+      
+              return Scaffold(
+                backgroundColor: AppColors.background,
+                appBar: null,
+                body: SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 520),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 24),
+                          FadeTransition(
+                            opacity: _iconOpacity,
+                            child: ScaleTransition(
+                              scale: _iconScale,
+                              child: Center(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 420),
+                                  switchInCurve: Curves.easeInOut,
+                                  switchOutCurve: Curves.easeInOut,
+                                  transitionBuilder: (child, animation) {
+                                    final slide = Tween<Offset>(
+                                      begin: const Offset(0, 0.03),
+                                      end: Offset.zero,
+                                    ).animate(
+                                      CurvedAnimation(
+                                        parent: animation,
+                                        curve: Curves.easeInOut,
                                       ),
-                                    ),
-                                  );
-                                },
-                                child: _AuthHeaderIcon(
-                                  key: ValueKey<AuthMode>(state.mode),
-                                  icon: state.mode == AuthMode.login 
-                                      ? Icons.lock_outline_rounded 
-                                      : Icons.person_add_alt_1_rounded,
+                                    );
+                                    final scale = Tween<double>(
+                                      begin: 0.92,
+                                      end: 1.0,
+                                    ).animate(
+                                      CurvedAnimation(
+                                        parent: animation,
+                                        curve: Curves.easeInOutBack,
+                                      ),
+                                    );
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: SlideTransition(
+                                        position: slide,
+                                        child: ScaleTransition(
+                                          scale: scale,
+                                          child: child,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: _AuthHeaderIcon(
+                                    key: ValueKey<AuthMode>(state.mode),
+                                    icon: state.mode == AuthMode.login
+                                        ? Icons.lock_outline_rounded
+                                        : Icons.person_add_alt_1_rounded,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        FadeTransition(
-                          opacity: _cardOpacity,
-                          child: SlideTransition(
-                            position: _cardSlide,
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(22),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.08),
-                                    blurRadius: 24,
-                                    offset: const Offset(0, 12),
-                                  ),
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.03),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  AuthToggle(
-                                    mode: state.mode,
-                                    onModeSelected: (mode) {
-                                      if (isLoading) return;
-                                      _cubit.changeAuthMode(mode);
-                                    },
-                                  ),
-                                  const SizedBox(height: 20),
-                                  Text(
-                                    AppLocalization.t('mental_health_auth_title'),
-                                    textAlign: TextAlign.center,
-                                    style: AppTextStyles.largeBlack,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    AppLocalization.t(
-                                      state.mode == AuthMode.login
-                                          ? 'login_subtitle'
-                                          : 'register_subtitle',
+                          const SizedBox(height: 24),
+                          FadeTransition(
+                            opacity: _cardOpacity,
+                            child: SlideTransition(
+                              position: _cardSlide,
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(22),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.08),
+                                      blurRadius: 24,
+                                      offset: const Offset(0, 12),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    style: AppTextStyles.mediumGrey,
-                                  ),
-                                  const SizedBox(height: 22),
-                                  const SizedBox(height: 16),
-                                  PhoneTextField(
-                                    titleKey: 'phone',
-                                    margin: 16,
-                                    controller: _phoneController,
-                                    selectedCountry: state.selectedCountry,
-                                    errorText: state.phoneErrorMessage,
-                                    hintKey: isSaudi
-                                        ? 'saudi_phone_hint'
-                                        : AppLocalization.t('phone_number_hint'),
-                                    onCountryChanged: _cubit.selectCountry,
-                                    onChanged: _cubit.updatePhone,
-                                  ),
-                                  _AuthModeFieldsSwitcher(
-                                    mode: state.mode,
-                                    firstNameController: _firstNameController,
-                                    lastNameController: _lastNameController,
-                                    onFirstNameChanged: _cubit.updateFirstName,
-                                    onLastNameChanged: _cubit.updateLastName,
-                                  ),
-                                  if (inlineError != null) ...[
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      inlineError,
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.error,
-                                      ),
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.03),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
                                     ),
                                   ],
-                                  const SizedBox(height: 18),
-                                  AppButton(
-                                    onTap: () {
-                                      if (state.mode == AuthMode.login) {
-                                        context.read<AuthCubit>().requestOTO(context: context, mobile: _phoneController.text);
-
-                                      } else {
-                                        context.read<AuthCubit>().register(
-                                            context: context,
-                                            registerRequestModel: RegisterRequestModel(
-                                                firstName: _firstNameController.text,
-                                                lastName: _lastNameController.text,
-                                                mobile: _phoneController.text,
-                                                contryCode: state.selectedCountry.dialCode.substring(1),
-                                                termsConditions: "0"
-                                            )
-                                        );
-                                      }
-                                    },
-                                    margin: 12,
-                                    child: BlocBuilder<AuthCubit,AuthState>(
-                                        builder: (context , state){
-                                          if(state is RequestOTPLoading ){
-                                            return const SizedBox(
-                                              height: 20,
-                                              width: 20,
-                                              child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  color: AppColors.surface
-                                              ),
-                                            );
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    AuthToggle(
+                                      mode: state.mode,
+                                      onModeSelected: (mode) {
+                                        if (isLoading) return;
+                                        authCubit.changeAuthMode(mode);
+                                      },
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Text(
+                                      AppLocalization.t('mental_health_auth_title'),
+                                      textAlign: TextAlign.center,
+                                      style: AppTextStyles.largeBlack,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      AppLocalization.t(
+                                        state.mode == AuthMode.login
+                                            ? 'login_subtitle'
+                                            : 'register_subtitle',
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      style: AppTextStyles.mediumGrey,
+                                    ),
+                                    const SizedBox(height: 22),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        AppCountryCodeField(
+                                          controller: authCubit.countryCodeController,
+                                          onChanged: (code){
+                                            authCubit.countryCode = int.parse(code) ;
+                                            print("كود الدوله $code");
+                                          },
+                                        ),
+      
+                                        const SizedBox(width: 12),
+      
+                                        Expanded(
+                                          child: AppTextField(
+                                            title: "رقم الهاتف",
+                                            controller: authCubit.phoneController,
+                                            icon: Icons.mobile_friendly_sharp,
+                                            keyboardType: TextInputType.phone,
+                                            minLength: 7,
+                                            maxLength: 11,
+                                            validator: (value) {
+                                              if (value == null || value.length < 7) {
+                                                return "رقم الهاتف غير صحيح";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    _AuthModeFieldsSwitcher(
+                                      authCubit: authCubit,
+                                      mode: state.mode,
+                                      firstNameController: authCubit.firstNameController,
+                                      lastNameController: authCubit.lastNameController,
+                                      onFirstNameChanged: authCubit.updateFirstName,
+                                      onLastNameChanged: authCubit.updateLastName,
+                                    ),
+                                    if (inlineError != null) ...[
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        inlineError,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.error,
+                                        ),
+                                      ),
+                                    ],
+                                    const SizedBox(height: 18),
+                                    AppButton(
+                                      onTap: () {
+                                        authCubit.phoneNum = authCubit.phoneController.text ;
+                                        if (state.mode == AuthMode.login) {
+                                          if(authCubit.phoneController.text.isEmpty || authCubit.phoneController.text.length < 8){
+                                            showAppSnackBarError(context: context, message: "يرجي ادخال رقم هاتف صحيح");
+                                          }else {
+                                            authCubit.requestOTO(context: context, mobile: authCubit.phoneController.text);
                                           }
-                                          return AppText(
-                                              jsonKey: state.mode == AuthMode.login ? 'send_code' : 'create_account',
-                                              textStyle: AppTextStyles.mediumWhite,
-                                          );
+                                        } else {
+                                          if(
+                                            authCubit.phoneController.text.length > 7 &&
+                                            authCubit.firstNameController.text.isNotEmpty &&
+                                            authCubit.lastNameController.text.isNotEmpty &&
+                                            authCubit.isTermsAccepted == true
+                                          ){
+                                            authCubit.phoneNum = authCubit.phoneController.text ;
+                                            authCubit.register(
+                                                context: context,
+                                                registerRequestModel: RegisterRequestModel(
+                                                    firstName: authCubit.firstNameController.text,
+                                                    lastName: authCubit.lastNameController.text,
+                                                    mobile: authCubit.phoneController.text,
+                                                    contryCode: authCubit.countryCode.toString(),
+                                                    termsConditions: "1"
+                                                )
+                                            );
+                                          }else {
+                                            showAppSnackBarError(context: context, message: "يرجي اكمال جميع البينات");
+                                          }
                                         }
+                                      },
+                                      margin: 12,
+                                      child: AppText(
+                                        jsonKey: state.mode == AuthMode.login ? 'send_code' : 'create_account',
+                                        textStyle: AppTextStyles.mediumWhite,
+                                      )
                                     )
-                                  )
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
+                          const SizedBox(height: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -415,6 +461,7 @@ class _ToggleTab extends StatelessWidget {
   }
 }
 class _AuthModeFieldsSwitcher extends StatefulWidget {
+  final AuthCubit authCubit ;
   final AuthMode mode;
   final TextEditingController firstNameController;
   final TextEditingController lastNameController;
@@ -427,6 +474,7 @@ class _AuthModeFieldsSwitcher extends StatefulWidget {
     required this.lastNameController,
     required this.onFirstNameChanged,
     required this.onLastNameChanged,
+    required this.authCubit
   });
 
   @override
@@ -435,8 +483,6 @@ class _AuthModeFieldsSwitcher extends StatefulWidget {
 }
 
 class _AuthModeFieldsSwitcherState extends State<_AuthModeFieldsSwitcher> {
-  bool isTermsAccepted = false;
-
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
@@ -467,20 +513,17 @@ class _AuthModeFieldsSwitcherState extends State<_AuthModeFieldsSwitcher> {
         key: const ValueKey('register-fields'),
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+
           AppTextField(
-            titleKey: 'first_name',
-            controller: widget.firstNameController,
-            margin: 16,
-            keyboardType: TextInputType.name,
-            onChanged: widget.onFirstNameChanged,
+            controller: widget.authCubit.firstNameController,
+            title: "الاسم الاول",
+            icon: Icons.person_outline,
           ),
 
           AppTextField(
-            titleKey: 'last_name',
-            controller: widget.lastNameController,
-            margin: 16,
-            keyboardType: TextInputType.name,
-            onChanged: widget.onLastNameChanged,
+            controller: widget.authCubit.lastNameController,
+            title: "اسم العائلة",
+            icon: Icons.person_outline,
           ),
 
           const SizedBox(height: 8),
@@ -489,10 +532,10 @@ class _AuthModeFieldsSwitcherState extends State<_AuthModeFieldsSwitcher> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Checkbox(
-                value: isTermsAccepted,
+                value: widget.authCubit.isTermsAccepted,
                 onChanged: (value) {
                   setState(() {
-                    isTermsAccepted = value ?? false;
+                    widget.authCubit.isTermsAccepted = value ?? false;
                   });
                 },
               ),

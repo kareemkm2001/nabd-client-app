@@ -1,10 +1,10 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:nabd_client_app/core/extensions/date_format.dart';
 import 'package:nabd_client_app/core/theme/app_colors.dart';
 import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
+import '../../../core/helper/file_downloader.dart';
 
 class InvoiceCard extends StatelessWidget {
 
@@ -19,6 +19,7 @@ class InvoiceCard extends StatelessWidget {
   final String paymentStatus;
   final String insurance;
   final String paymentMode;
+  final String pdfLink;
 
    const InvoiceCard({
      super.key,
@@ -33,6 +34,7 @@ class InvoiceCard extends StatelessWidget {
      required this.paymentStatus,
      required this.insurance,
      required this.paymentMode,
+     required this.pdfLink
    });
 
   @override
@@ -67,15 +69,23 @@ class InvoiceCard extends StatelessWidget {
                 )
               ),
 
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 8,horizontal: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: AppColors.primary
-                ),
-                child: AppText(
-                    jsonKey: "تحميل الفاتورة",
-                  textStyle: AppTextStyles.smallWhite,
+              GestureDetector(
+                onTap: ()async {
+                  await FileDownloader.downloadPdf(
+                    url: pdfLink,
+                    fileName: "Invoice_$invoiceId",
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8,horizontal: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppColors.primary
+                  ),
+                  child: AppText(
+                      jsonKey: "تحميل الفاتورة",
+                    textStyle: AppTextStyles.smallWhite,
+                  ),
                 ),
               )
             ],

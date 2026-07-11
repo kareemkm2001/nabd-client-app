@@ -54,9 +54,9 @@ class _PaymentStepScreenState extends State<PaymentStepScreen> {
                   context: context,
                   title: "فيزا / ماستر كارد",
                   image: "assets/images/tap-payments.png",
-                  isSelected: appointmentsCubit.selectedPaymentMethod == 1,
+                  isSelected: appointmentsCubit.selectedPaymentMethod == 4,
                   onTap: () {
-                    appointmentsCubit.selectPaymentMethod(1);
+                    appointmentsCubit.selectPaymentMethod(4);
                   },
                 ),
 
@@ -66,9 +66,9 @@ class _PaymentStepScreenState extends State<PaymentStepScreen> {
                   context: context,
                   title: "تمارا",
                   image: "assets/images/tamara.png",
-                  isSelected: appointmentsCubit.selectedPaymentMethod == 2,
+                  isSelected: appointmentsCubit.selectedPaymentMethod == 9,
                   onTap: () {
-                    appointmentsCubit.selectPaymentMethod(2);
+                    appointmentsCubit.selectPaymentMethod(9);
                   },
                 ),
 
@@ -78,9 +78,9 @@ class _PaymentStepScreenState extends State<PaymentStepScreen> {
                   context: context,
                   title: "مدفوع",
                   image: "assets/images/madfou.png",
-                  isSelected: appointmentsCubit.selectedPaymentMethod == 3,
+                  isSelected: appointmentsCubit.selectedPaymentMethod == 10,
                   onTap: () {
-                    appointmentsCubit.selectPaymentMethod(3);
+                    appointmentsCubit.selectPaymentMethod(10);
                   },
                 ),
 
@@ -138,20 +138,15 @@ class _PaymentStepScreenState extends State<PaymentStepScreen> {
                   margin: 8,
                   titleKey: "اتمام الدفع",
                     onTap: () async {
-                      await LocalNotificationService.show(
-                        title: "تم الحجز بنجاح",
-                        body: "تم تأكيد موعدك مع الطبيب",
-                      );
                       if(appointmentsCubit.selectedPaymentMethod == null){
                         showAppSnackBarError(
                             context: context,
                             message: "يرجي وسيلة الدفع"
                         );
                       }else {
-                        Navigator.push(
-                            context,
-                            AppRouteAnimation(page: PaymentViewScreen(paymentUrl: "https://www.internetdownloadmanager.com/download2.html?lng=ar"))
-                        );
+                        if(appointmentsCubit.actionType == "normal"){
+                          appointmentsCubit.createNormalAppointment(context);
+                        }
                       }
                     }
                 ),

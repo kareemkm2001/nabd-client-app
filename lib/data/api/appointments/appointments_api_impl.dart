@@ -7,6 +7,8 @@ import 'package:nabd_client_app/domain/models/appointment/AppointmentClinicServi
 import 'package:nabd_client_app/domain/models/appointment/appointment_model.dart';
 import 'package:nabd_client_app/domain/models/appointment/clinic_times_response.dart';
 import 'package:nabd_client_app/domain/models/appointment/clinics_res_model.dart';
+import 'package:nabd_client_app/domain/models/appointment/create_normal_appointment_request.dart';
+import 'package:nabd_client_app/domain/models/appointment/create_normal_appointment_response.dart';
 import 'package:nabd_client_app/domain/models/appointment/package_for_clinic_model.dart';
 import 'package:nabd_client_app/domain/models/appointment/slot_model.dart';
 
@@ -223,6 +225,30 @@ class AppointmentsApiImpl implements AppointmentsApi {
       return Left(ErrorHandler.handle(e));
     }catch (e){
       print("،ننننننننننننن    $e");
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, CreateNormalAppointmentResponse>> createNormalAppointment(CreateNormalAppointmentRequest createNormalAppointmentRequest) async{
+    try {
+
+      final response = await api.post(
+        ApiConstants.createNormalAppointment,
+        data: createNormalAppointmentRequest.toJson(),
+      );
+
+      print("حلة الطلب من api ${response.statusCode}");
+
+      final  data = response.data['data']['booking'];
+
+      final CreateNormalAppointmentResponse booking = CreateNormalAppointmentResponse.fromJson(data);
+
+      return Right(booking);
+
+    }on DioException catch (e){
+      return Left(ErrorHandler.handle(e));
+    }catch (e){
       return Left(ServerFailure(e.toString()));
     }
   }

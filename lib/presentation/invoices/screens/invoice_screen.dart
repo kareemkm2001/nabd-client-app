@@ -50,6 +50,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     createdAt: state.invoices[index].createdAt,
                     insurance: state.invoices[index].insurance,
                     paymentMode: state.invoices[index].paymentMode,
+                    pdfLink: state.invoices[index].pdfLink,
                   );
                 }
               );
