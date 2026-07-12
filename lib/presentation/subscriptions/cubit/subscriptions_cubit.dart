@@ -19,6 +19,7 @@ class SubscriptionsCubit  extends Cubit<SubscriptionsState> {
           emit(GetSubscriptionError(errorMsg: l.message));
         },
             (r){
+              subscriptions = r ;
           emit(GetSubscriptionSuc(subscriptions: r));
         }
     );

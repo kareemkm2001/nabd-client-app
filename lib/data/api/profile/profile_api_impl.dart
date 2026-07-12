@@ -7,6 +7,7 @@ import 'package:nabd_client_app/core/network/api_constants.dart';
 import 'package:nabd_client_app/core/network/api_service.dart';
 import 'package:nabd_client_app/data/api/profile/profile_api.dart';
 import 'package:nabd_client_app/domain/models/profile/notifications_model.dart';
+import 'package:nabd_client_app/domain/models/profile/orders_model.dart';
 import 'package:nabd_client_app/domain/models/profile/profile_model.dart';
 import 'package:nabd_client_app/domain/models/profile/sub_user_model.dart';
 import 'package:nabd_client_app/domain/models/profile/update_profile_request.dart';
@@ -90,6 +91,28 @@ class ProfileApiImpl implements ProfileApi {
       print("الشكل ${notifications[0]}");
 
       return Right(notifications);
+
+    }on DioException catch (e){
+      return Left(ErrorHandler.handle(e));
+    }catch (e){
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<OrdersModel>>> getOrders() async {
+    try {
+
+      final response = await api.get(ApiConstants.orders);
+
+      final List<dynamic> dataList = response.data['data'];
+
+
+      final List<OrdersModel> orders = dataList
+          .map<OrdersModel>((e) => OrdersModel.fromJson(e))
+          .toList();
+
+      return Right(orders);
 
     }on DioException catch (e){
       return Left(ErrorHandler.handle(e));

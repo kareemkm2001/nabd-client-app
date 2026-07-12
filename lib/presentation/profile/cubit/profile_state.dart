@@ -1,3 +1,4 @@
+import 'package:nabd_client_app/domain/models/profile/orders_model.dart';
 import 'package:nabd_client_app/domain/models/profile/sub_user_model.dart';
 
 import '../../../domain/models/profile/notifications_model.dart';
@@ -52,4 +53,16 @@ class GetNotificationsError extends ProfileState {
 class GetNotificationsSuc extends ProfileState {
   final List<NotificationsModel> notifications ;
   GetNotificationsSuc({required this.notifications});
+}
+
+
+class GetOrdersLoading extends ProfileState {}
+class GetOrdersError extends ProfileState {
+  final String errorMsg ;
+  GetOrdersError({required this.errorMsg});
+
+}
+class GetOrdersSuc extends ProfileState {
+  final List<OrdersModel> orders ;
+  GetOrdersSuc({required this.orders});
 }

@@ -29,45 +29,44 @@ class ProfileDetailScreen extends StatelessWidget {
 
             BlocBuilder<ProfileCubit , ProfileState>(
                 builder: (context , state){
-                  if(state is GetProfilesSuc){
-                    return Center(
-                      child: Column(
-                        children: [
-                          Hero(
-                            tag: "profile_avatar",
-                            child: Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
+                  final profile = context.read<ProfileCubit>().profileModel ;
+
+                  return Center(
+                    child: Column(
+                      children: [
+                        Hero(
+                          tag: "profile_avatar",
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.primary,
+                                width: 2,
                               ),
-                              child: CircleAvatar(
-                                radius: 35,
-                                child: AvatarHelper.getAvatar(
-                                  state.profile.firstName ?? "",
-                                  state.profile.lastName ?? "",
-                                ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 35,
+                              child: AvatarHelper.getAvatar(
+                                profile?.firstName ?? "",
+                                profile?.lastName ?? "",
                               ),
                             ),
                           ),
-                          SizedBox(height: 10,),
-                          Hero(
-                            tag: "full_name",
-                            child: Text(
-                              "${state.profile.firstName} ${state.profile.lastName ?? ""}",
-                              style: AppTextStyles.mediumBlack.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                        ),
+                        SizedBox(height: 10,),
+                        Hero(
+                          tag: "full_name",
+                          child: Text(
+                            "${profile?.firstName} ${profile?.lastName ?? ""}",
+                            style: AppTextStyles.mediumBlack.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  }
-                  return SizedBox(height: 50,);
+                        ),
+                      ],
+                    ),
+                  );
                 }
             ),
 
@@ -94,44 +93,44 @@ class ProfileDetailScreen extends StatelessWidget {
                         return Center(child: CircularProgressIndicator(),);
                       }if(state is GetProfileError){
                         return Center(child: Text(state.errorMsg),);
-                      }if(state is GetProfilesSuc){
+                      }else {
+                        final profile = context.read<ProfileCubit>().profileModel ;
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
 
-                            _item("الاسم الأول", state.profile.firstName ?? "-"),
-                            _item("الاسم الثاني", state.profile.secondName ?? "-"),
-                            _item("الاسم الثالث", state.profile.thirdName ?? "-"),
-                            _item("الاسم الأخير", state.profile.lastName ?? "-"),
+                            _item("الاسم الأول", profile?.firstName ?? "-"),
+                            _item("الاسم الثاني", profile?.secondName ?? "-"),
+                            _item("الاسم الثالث", profile?.thirdName ?? "-"),
+                            _item("الاسم الأخير", profile?.lastName ?? "-"),
 
                             const Divider(height: 30),
 
-                            _item("اسم المستخدم", state.profile.username ?? "-"),
-                            _item("نوع المستخدم", state.profile.userType ?? "-"),
-                            _item("الحالة", state.profile.status ?? "-"),
-                            _item("النوع", state.profile.gender ?? "-"),
+                            _item("اسم المستخدم", profile?.username ?? "-"),
+                            _item("نوع المستخدم", profile?.userType ?? "-"),
+                            _item("الحالة", profile?.status ?? "-"),
+                            _item("النوع", profile?.gender ?? "-"),
 
                             const Divider(height: 30),
 
-                            _item("رقم الجوال", state.profile.mobile ?? "-"),
-                            _item("الهاتف", state.profile.telephone ?? "-"),
-                            _item("كود الدولة", state.profile.contryCode ?? "-"),
-                            _item("البريد الإلكتروني", state.profile.email ?? "-"),
+                            _item("رقم الجوال", profile?.mobile ?? "-"),
+                            _item("الهاتف", profile?.telephone ?? "-"),
+                            _item("كود الدولة", profile?.contryCode ?? "-"),
+                            _item("البريد الإلكتروني", profile?.email ?? "-"),
 
                             const Divider(height: 30),
 
-                            _item("العمر", "${state.profile.age ?? "-"}"),
-                            _item("تاريخ الميلاد", state.profile.birthday ?? "-"),
-                            _item("الحالة الاجتماعية", state.profile.socialSituation ?? "-"),
+                            _item("العمر", "${profile?.age ?? "-"}"),
+                            _item("تاريخ الميلاد", profile?.birthday ?? "-"),
+                            _item("الحالة الاجتماعية", profile?.socialSituation ?? "-"),
 
                             const Divider(height: 30),
 
-                            _item("تاريخ الإنشاء", _format(state.profile.createdAt)),
-                            _item("آخر تحديث", _format(state.profile.updatedAt)),
+                            _item("تاريخ الإنشاء", _format(profile?.createdAt)),
+                            _item("آخر تحديث", _format(profile?.updatedAt)),
                           ],
                         );
                       }
-                      return SizedBox();
                     }
                 ),
             ),

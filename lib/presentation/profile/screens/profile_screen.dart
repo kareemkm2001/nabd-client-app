@@ -9,6 +9,7 @@ import 'package:nabd_client_app/presentation/auth/screens/auth_screen.dart';
 import 'package:nabd_client_app/presentation/invoices/screens/invoice_screen.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_state.dart';
+import 'package:nabd_client_app/presentation/profile/screens/orders_screen.dart';
 import 'package:nabd_client_app/presentation/profile/screens/profile_detail_screen.dart';
 import 'package:nabd_client_app/presentation/profile/screens/sub_users_screen.dart';
 import 'package:nabd_client_app/presentation/terms_and_conditions/terms_page.dart';
@@ -141,7 +142,9 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.request_page_rounded,
                     title: AppLocalization.t('طلبات المواعيد'),
                     color: AppColors.secondary,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context, AppRouteAnimation(page: OrdersScreen()));
+                    },
                   ),
 
                  MoreMenuItem(

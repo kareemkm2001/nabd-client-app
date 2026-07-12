@@ -20,131 +20,149 @@ class HomeClinicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        width: 300,
-        margin: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 8,
+    return SizedBox(
+      width: 300,
+      child: Card(
+        elevation: 4,
+        color: Colors.white,
+        shadowColor: Colors.black12,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
         ),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(.06),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(.1),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: const Icon(
-                Icons.medical_services_rounded,
-                color: AppColors.primary,
-                size: 34,
-              ),
-            ),
-
-            const SizedBox(width: 14),
-
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    clinicName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.mediumBoldBlack,
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    doctorName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.smallGrey,
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star_rounded,
-                        color: Colors.amber,
-                        size: 18,
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Header (متغيرش)
+                Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(.1),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      const SizedBox(width: 3),
-                      Text(
-                        rating.toString(),
+                      child: const Icon(
+                        Icons.local_hospital_rounded,
+                        color: AppColors.primary,
+                        size: 32,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            clinicName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.mediumBoldBlack.copyWith(
+                              fontSize: 17,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            doctorName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.smallGrey,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 22),
+
+                /// Rating + Label
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            rating.toStringAsFixed(1),
+                            style: AppTextStyles.mediumBoldBlack,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary.withOpacity(.12),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        label,
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                          color: AppColors.secondary,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 10),
-
-            SizedBox(
-              width: 70,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 5,
                     ),
-                    decoration: BoxDecoration(
-                      color: AppColors.secondary.withOpacity(.12),
-                      borderRadius: BorderRadius.circular(20),
+                  ],
+                ),
+
+                const Spacer(),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton.icon(
+                    onPressed: onTap,
+                    icon: const Icon(
+                      Icons.calendar_month_rounded,
+                      color: Colors.white,
+                      size: 20,
                     ),
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.secondary,
-                        fontSize: 11,
+                    label: const Text(
+                      "حجز موعد",
+                      style: TextStyle(
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-
-                  const CircleAvatar(
-                    radius: 16,
-                    backgroundColor: AppColors.primary,
-                    child: Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.white,
-                      size: 14,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

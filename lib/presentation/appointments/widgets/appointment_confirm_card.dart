@@ -24,241 +24,200 @@ class AppointmentConfirmCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = isConfirmed ? Colors.green : Colors.orange;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(24),
       child: Container(
-        width: 320,
-        height: double.infinity,
+        width: 300,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.lerp(AppColors.primary, Colors.white, .12)!,
-              AppColors.primary,
-              Color.lerp(AppColors.secondary, Colors.white, .28)!,
-            ],
-            stops: const [0.0, .55, 1],
-          ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(.20),
+              color: Colors.black.withOpacity(.06),
               blurRadius: 18,
-              offset: const Offset(0, 10),
+              offset: const Offset(0, 8),
             ),
           ],
         ),
-        child: Stack(
+        child: Column(
           children: [
-            /// لمعان فوق
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.white.withOpacity(.18),
-                      Colors.transparent,
-                      Colors.transparent,
-                    ],
-                  ),
+            /// Header
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary,
+                    AppColors.secondary,
+                  ],
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
                 ),
               ),
-            ),
-
-            /// دوائر الخلفية
-            Positioned(
-              top: -40,
-              right: -35,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(.08),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-
-            Positioned(
-              bottom: -55,
-              left: -35,
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(.05),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(.18),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(.20),
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.calendar_month_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-
-                      const Spacer(),
-
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isConfirmed
-                              ? Colors.green
-                              : Colors.orange,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          isConfirmed
-                              ? "مؤكد"
-                              : "بانتظار",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  Text(
-                    clinicName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.mediumBoldBlack.copyWith(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    doctorName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.smallGrey.copyWith(
-                      color: Colors.white.withOpacity(.90),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
+                    width: 52,
+                    height: 52,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(.14),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(.10),
-                      ),
+                      color: Colors.white.withOpacity(.18),
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today_rounded,
-                          color: Colors.white,
-                          size: 17,
-                        ),
-                        const SizedBox(width: 6),
+                    child: const Icon(
+                      Icons.calendar_month_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
 
-                        Expanded(
-                          child: Text(
-                            appointmentDate,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
+                  const SizedBox(width: 14),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          clinicName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.mediumBoldBlack.copyWith(
+                            color: Colors.white,
+                            fontSize: 17,
                           ),
                         ),
-
-                        const Icon(
-                          Icons.access_time_rounded,
-                          color: Colors.white,
-                          size: 17,
-                        ),
-
-                        const SizedBox(width: 6),
-
+                        const SizedBox(height: 4),
                         Text(
-                          appointmentTime,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                          doctorName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.smallGrey.copyWith(
+                            color: Colors.white70,
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  const Spacer(),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 46,
-                    child: ElevatedButton.icon(
-                      onPressed: isConfirmed ? null : onConfirm,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.primary,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      icon: Icon(
-                        isConfirmed
-                            ? Icons.check_circle
-                            : Icons.verified_outlined,
-                        size: 18,
-                      ),
-                      label: Text(
-                        isConfirmed
-                            ? "تم التأكيد"
-                            : "تأكيد الحضور",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Text(
+                      isConfirmed ? "مؤكد" : "بانتظارك",
+                      style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
                       ),
                     ),
                   ),
                 ],
+              ),
+            ),
+
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today,
+                                  color: AppColors.primary,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  appointmentDate,
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.mediumBoldBlack,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.access_time,
+                                  color: AppColors.primary,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  appointmentTime,
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.mediumBoldBlack,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const Spacer(),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: isConfirmed ? null : onConfirm,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        icon: Icon(
+                          isConfirmed
+                              ? Icons.check_circle
+                              : Icons.verified_user,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          isConfirmed
+                              ? "تم تأكيد الحضور"
+                              : "تأكيد الحضور",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

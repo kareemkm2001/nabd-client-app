@@ -5,11 +5,17 @@ import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/utils/get_greeting.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
+import 'package:nabd_client_app/presentation/appointments/screens/clinic_step_screen.dart';
+import 'package:nabd_client_app/presentation/appointments/screens/service_step_screen.dart';
 import 'package:nabd_client_app/presentation/home/widgets/home_clinic_card.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_state.dart';
 import 'package:nabd_client_app/presentation/profile/screens/notifications_screen.dart';
 import 'package:nabd_client_app/presentation/profile/screens/update_profile_screen.dart';
+import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_cubit.dart';
+import 'package:nabd_client_app/presentation/subscriptions/cubit/subscriptions_state.dart';
+import 'package:nabd_client_app/presentation/subscriptions/screens/subscription_details_page.dart';
+import 'package:nabd_client_app/presentation/subscriptions/widgets/subscription_card.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../appointments/cubit/appointments_cubit.dart';
@@ -27,7 +33,9 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
      final profileCubit = context.read<ProfileCubit>() ;
-    return Scaffold(
+     final appointmentsCubit = context.read<AppointmentsCubit>() ;
+     final subscriptionsCubit = context.read<SubscriptionsCubit>() ;
+     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
@@ -59,6 +67,7 @@ class HomeScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Column (
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 20,),
             Container(
@@ -135,14 +144,21 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            AppointmentBookingWidget(),
+            GestureDetector(
+                onTap: (){
+                  appointmentsCubit.actionType = "normal" ;
+                  Navigator.push(context, AppRouteAnimation(page: ClinicStepScreen())).then((_){
+                    appointmentsCubit.resetAppointmentDataSelection();
+                  });                },
+                child: AppointmentBookingWidget()
+            ),
             SizedBox(height: 10,),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
                   AppText(
-                      jsonKey: "المواعيد الغير مؤكدة",
+                      jsonKey: "المواعيد القادمة ",
                       textStyle: AppTextStyles.mediumPrimary,
                   ),
                   Spacer(),
@@ -163,7 +179,7 @@ class HomeScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.background
               ),
-              height: 250,
+              height: 320,
               child: BlocBuilder<AppointmentsCubit, AppointmentsState>(
                 builder: (context, state) {
                   if (state is GetAppointmentLoading) {
@@ -211,13 +227,32 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10,),
-            SubscriptionBookingWidget(),
+            GestureDetector(
+              onTap: (){
+                context.read<AppointmentsCubit>().actionType = "add_sub" ;
+                Navigator.push(
+                    context,
+                    AppRouteAnimation(page: ClinicStepScreen())
+                ).then((_){
+                  context.read<AppointmentsCubit>().resetAppointmentDataSelection();
+                });
+              },
+                child: SubscriptionBookingWidget(),
+            ),
+            SizedBox(height: 10,),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: AppText(
+                jsonKey: "العيادات",
+                textStyle: AppTextStyles.mediumPrimary,
+              ),
+            ),
             SizedBox(height: 10,),
             Container(
               decoration: BoxDecoration(
                   color: AppColors.background
               ),
-              height: 250,
+              height: 320,
               child: BlocBuilder<AppointmentsCubit, AppointmentsState>(
                 builder: (context, state) {
                   final clinics = context.read<AppointmentsCubit>().clinics;
@@ -233,14 +268,39 @@ class HomeScreen extends StatelessWidget {
                         doctorName: clinics[index].doctorName,
                         label: clinics[index].label,
                         rating: 4.8,
-                        onTap: () {},
+                        onTap: () {
+                          appointmentsCubit.selectedClinicId = clinics[index].id ;
+                          Navigator.push(context, AppRouteAnimation(page: ServiceStepScreen()));
+                        },
                       );
                     },
                   );
                 },
               ),
             ),
-            SizedBox(height: 10,)
+            SizedBox(height: 10,),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: AppText(
+                jsonKey: "اشتراكي الحالي",
+                textStyle: AppTextStyles.mediumPrimary,
+              ),
+            ),
+            SizedBox(height: 10,),
+            BlocBuilder<SubscriptionsCubit,SubscriptionsState>(
+                builder: (context,state){
+                  if(state is GetSubscriptionSuc){
+                    return SubscriptionCard(
+                        subscriptionModel: subscriptionsCubit.subscriptions[0],
+                        onTap: (){
+                          Navigator.push(context, AppRouteAnimation(page: SubscriptionDetailScreen(subscription: subscriptionsCubit.subscriptions[0])));
+                        }
+                    );
+                  }
+                  return SizedBox();
+                }
+            ),
+            SizedBox(height: 20,)
           ],
         ),
       )

@@ -4,6 +4,7 @@ import 'package:nabd_client_app/domain/models/profile/profile_model.dart';
 
 import '../../core/error/failures.dart';
 import '../models/profile/notifications_model.dart';
+import '../models/profile/orders_model.dart';
 import '../models/profile/sub_user_model.dart';
 import '../models/profile/update_profile_request.dart';
 
@@ -27,5 +28,9 @@ class ProfileUseCase {
 
   Future<Either<Failure, List<NotificationsModel>>> getNotifications() async {
     return await profileApi.getNotifications();
+  }
+
+  Future<Either<Failure, List<OrdersModel>>> getOrders() async {
+    return await profileApi.getOrders();
   }
 }

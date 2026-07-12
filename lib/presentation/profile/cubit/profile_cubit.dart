@@ -205,4 +205,22 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
 
   }
+
+  void getOrders() async {
+    emit(GetOrdersLoading());
+
+    final result = await profileUseCase.getOrders();
+
+    result.fold(
+            (l){
+          emit(GetOrdersError(errorMsg: l.message));
+        },
+            (r){
+          emit(GetOrdersSuc(orders: r));
+        }
+    );
+
+  }
+
+
 }
