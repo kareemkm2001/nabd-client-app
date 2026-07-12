@@ -29,6 +29,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     context.read<ProfileCubit>().getProfile();
     context.read<AppointmentsCubit>().getAppointments();
+    context.read<AppointmentsCubit>().getClinics();
     context.read<SubscriptionsCubit>().getSubscriptions();
 
     super.initState();

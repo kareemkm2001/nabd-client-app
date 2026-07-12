@@ -1,5 +1,6 @@
 import 'package:nabd_client_app/domain/models/profile/sub_user_model.dart';
 
+import '../../../domain/models/profile/notifications_model.dart';
 import '../../../domain/models/profile/profile_model.dart';
 
 class ProfileState {}
@@ -39,4 +40,16 @@ class GetSubUsersError extends ProfileState {
 class GetSubUsersSuc extends ProfileState {
   final List<SubUserModel> subUsers ;
   GetSubUsersSuc({required this.subUsers});
+}
+
+
+class GetNotificationsLoading extends ProfileState {}
+class GetNotificationsError extends ProfileState {
+  final String errorMsg ;
+  GetNotificationsError({required this.errorMsg});
+
+}
+class GetNotificationsSuc extends ProfileState {
+  final List<NotificationsModel> notifications ;
+  GetNotificationsSuc({required this.notifications});
 }

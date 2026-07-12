@@ -61,9 +61,6 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  void resetState() {
-    emit(ProfileInitial());
-  }
 
   void fillController() {
     setIfNotNull(firstNameController, profileModel?.firstName);
@@ -188,6 +185,22 @@ class ProfileCubit extends Cubit<ProfileState> {
         },
         (r){
           emit(GetSubUsersSuc(subUsers: r));
+        }
+    );
+
+  }
+
+  void getNotifications() async {
+    emit(GetNotificationsLoading());
+
+    final result = await profileUseCase.getNotifications();
+
+    result.fold(
+            (l){
+          emit(GetNotificationsError(errorMsg: l.message));
+        },
+            (r){
+          emit(GetNotificationsSuc(notifications: r));
         }
     );
 

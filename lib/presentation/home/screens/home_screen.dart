@@ -5,11 +5,18 @@ import 'package:nabd_client_app/core/theme/app_text_styles.dart';
 import 'package:nabd_client_app/core/utils/get_greeting.dart';
 import 'package:nabd_client_app/core/widgets/app_route_animation.dart';
 import 'package:nabd_client_app/core/widgets/app_text.dart';
+import 'package:nabd_client_app/presentation/home/widgets/home_clinic_card.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_cubit.dart';
 import 'package:nabd_client_app/presentation/profile/cubit/profile_state.dart';
+import 'package:nabd_client_app/presentation/profile/screens/notifications_screen.dart';
 import 'package:nabd_client_app/presentation/profile/screens/update_profile_screen.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../appointments/cubit/appointments_cubit.dart';
+import '../../appointments/cubit/appointments_state.dart';
+import '../../appointments/screens/appointment_details_screen.dart';
+import '../../appointments/widgets/appointment_card.dart';
+import '../../appointments/widgets/appointment_confirm_card.dart';
 import '../widgets/appointment_booking_widget.dart';
 import '../widgets/subscription_booking_widget.dart';
 class HomeScreen extends StatelessWidget {
@@ -18,6 +25,8 @@ class HomeScreen extends StatelessWidget {
 
    @override
   Widget build(BuildContext context) {
+
+     final profileCubit = context.read<ProfileCubit>() ;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -26,15 +35,9 @@ class HomeScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
         title: BlocBuilder<ProfileCubit,ProfileState>(
             builder: (context , state){
-              if(state is GetProfilesSuc){
-                return AppText(
-                  jsonKey: "${getGreeting()}, ${state.profile.firstName}",
-                  textStyle: AppTextStyles.mediumBoldPrimary,
-                );
-              }
               return AppText(
-                  jsonKey: "${getGreeting()}, _ ",
-              textStyle: AppTextStyles.mediumBoldPrimary
+                jsonKey: "${getGreeting()}, ${profileCubit.profileModel?.firstName ?? "_"}",
+                textStyle: AppTextStyles.mediumBoldPrimary,
               );
             }
 
@@ -44,7 +47,7 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: IconButton(
                 onPressed: (){
-
+                  Navigator.push(context, AppRouteAnimation(page: NotificationsScreen()));
                 },
                 icon: Icon(
                   Icons.notifications,
@@ -139,7 +142,7 @@ class HomeScreen extends StatelessWidget {
               child: Row(
                 children: [
                   AppText(
-                      jsonKey: "المواعيد القادمة",
+                      jsonKey: "المواعيد الغير مؤكدة",
                       textStyle: AppTextStyles.mediumPrimary,
                   ),
                   Spacer(),
@@ -155,10 +158,89 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 200,),
+            SizedBox(height: 10,),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.background
+              ),
+              height: 250,
+              child: BlocBuilder<AppointmentsCubit, AppointmentsState>(
+                builder: (context, state) {
+                  if (state is GetAppointmentLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (state is GetAppointmentError) {
+                    return Center(
+                      child: Text(state.errorMsg),
+                    );
+                  }
+
+                  final appointments = context.read<AppointmentsCubit>().appointments.where((e) => e.confirmed == "غير مؤكد").toList();
+
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: appointments.length,
+                    itemBuilder: (context, index) {
+                      return AppointmentConfirmCard(
+                        clinicName: appointments[index].clinic.name,
+                        doctorName: appointments[index].clinic.doctor.fullName,
+                        appointmentDate: appointments[index].date,
+                        appointmentTime: appointments[index].fromTime,
+                        isConfirmed: false,
+                        onConfirm: () {
+                          // API Confirm
+                        },
+                        onTap: () {
+                          print(appointments[index].confirmed);
+                          Navigator.push(
+                            context,
+                            AppRouteAnimation(
+                              page: AppointmentDetailsScreen(
+                                appointmentId: appointments[index].id,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
             SizedBox(height: 10,),
             SubscriptionBookingWidget(),
-            SizedBox(),
+            SizedBox(height: 10,),
+            Container(
+              decoration: BoxDecoration(
+                  color: AppColors.background
+              ),
+              height: 250,
+              child: BlocBuilder<AppointmentsCubit, AppointmentsState>(
+                builder: (context, state) {
+                  final clinics = context.read<AppointmentsCubit>().clinics;
+
+                  print(clinics.length);
+
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: clinics.length,
+                    itemBuilder: (context, index) {
+                      return HomeClinicCard(
+                        clinicName: clinics[index].name,
+                        doctorName: clinics[index].doctorName,
+                        label: clinics[index].label,
+                        rating: 4.8,
+                        onTap: () {},
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 10,)
           ],
         ),
       )

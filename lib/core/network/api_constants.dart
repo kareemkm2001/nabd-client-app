@@ -14,6 +14,7 @@ class ApiConstants {
   static const String profile = "api/v1/profile" ;
   static const String updateProfile = "api/v1/profile/update" ;
   static const String subUsers = "api/v1/users" ;
+  static const String notifications = "api/v1/notifications" ;
 
 
   // Invoices

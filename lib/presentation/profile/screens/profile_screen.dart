@@ -19,12 +19,15 @@ import '../../../../core/widgets/app_route_animation.dart';
 import '../../../core/helper/avatar_helper.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../widgets/profile_menu_item.dart';
+import 'notifications_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    final profileCubit = context.read<ProfileCubit>() ;
 
     return Scaffold(
       appBar: AppAppBar(titleKey: "الحساب",isHome: true,),
@@ -47,85 +50,81 @@ class ProfileScreen extends StatelessWidget {
               },
               child: BlocBuilder<ProfileCubit,ProfileState>(
                   builder: (context , state){
-                    if(state is GetProfilesSuc){
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
+                    return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
                         ),
-                        child: Row(
-                          children: [
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Hero(
+                          tag: "profile_avatar",
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.primary,
+                                width: 2,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 35,
+                              child: AvatarHelper.getAvatar(
+                                profileCubit.profileModel?.firstName ?? "",
+                                profileCubit.profileModel?.lastName ?? "",
+                              ),
+                            ),
+                          ),
+                        ),
 
-                            Hero(
-                              tag: "profile_avatar",
-                              child: Container(
-                                padding: const EdgeInsets.all(3),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.primary,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 35,
-                                  child: AvatarHelper.getAvatar(
-                                    state.profile.firstName ?? "",
-                                    state.profile.lastName ?? "",
+                        const SizedBox(width: 16),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+                              Hero(
+                                tag: "full_name",
+                                child: Text(
+                                  "${profileCubit.profileModel?.firstName ?? ""} ${profileCubit.profileModel?.lastName ?? ""}",
+                                  style: AppTextStyles.mediumBlack.copyWith(
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
-                            ),
 
-                            const SizedBox(width: 16),
+                              const SizedBox(height: 6),
 
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-
-                                  Hero(
-                                    tag: "full_name",
-                                    child: Text(
-                                      "${state.profile.firstName} ${state.profile.lastName}",
-                                      style: AppTextStyles.mediumBlack.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 6),
-
-                                  Directionality(
-                                    textDirection: TextDirection.ltr,
-                                    child: Text(
-                                      "+${state.profile.contryCode }${state.profile.mobile}",
-                                      style: AppTextStyles.smallGrey,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              size: 18,
-                              color: Colors.grey.shade400,
-                            ),
-                          ],
+                              Directionality(
+                                textDirection: TextDirection.ltr,
+                                child: Text(
+                                  "+${profileCubit.profileModel?.contryCode ?? "" }${profileCubit.profileModel?.mobile ?? ""}",
+                                  style: AppTextStyles.smallGrey,
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      );
-                    }
-                    return SizedBox(height: 50,);
+
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 18,
+                          color: Colors.grey.shade400,
+                        ),
+                      ],
+                    ),
+                    );
                   }
               )
             ),
@@ -150,9 +149,7 @@ class ProfileScreen extends StatelessWidget {
                     title: AppLocalization.t('التابعين'),
                     color: Colors.cyan,
                     onTap: () {
-                      Navigator.push(context, AppRouteAnimation(page: SubUsersScreen())).then((_){
-                        context.read<ProfileCubit>().resetState();
-                      });
+                      Navigator.push(context, AppRouteAnimation(page: SubUsersScreen()));
                     },
                   ),
 
@@ -160,7 +157,9 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.notifications_active,
                     title: AppLocalization.t('الاشعارات'),
                     color: Colors.teal,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context, AppRouteAnimation(page: NotificationsScreen()));
+                    },
                   ),
 
                   MoreMenuItem(
